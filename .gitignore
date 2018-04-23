@@ -99,3 +99,12 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+*.json
+*.txt
+*.pkl
+*.pt
+*.bin
+result/
+output/
+DuReader_v2.0_preprocess/

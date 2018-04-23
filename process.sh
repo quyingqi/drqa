@@ -1,0 +1,17 @@
+python train.py \
+-word-vectors data/penny.cbow.dim300.bin \
+-epoch 10 \
+-batch 32 \
+-device 2 \
+-pos-vec-size 5 \
+-ner-vec-size 5 \
+-hidden-size 128 \
+-optimizer Adamax \
+-lr 0.02 \
+-num-layers 3 \
+-brnn \
+-rnn-type LSTM \
+-multi-layer last \
+-exp-name bilstm_last_aligned-2 \
+-load-file data/train.baidu+sogou.pt
+-load-file data/debug_data/train.pt
