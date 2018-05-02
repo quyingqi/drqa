@@ -3,7 +3,7 @@
 from __future__ import absolute_import
 import copy
 import codecs
-from .string_tool import strQ2B, drop_punctuation, filter_blank, split_string
+from string_tool import strQ2B, drop_punctuation, filter_blank, split_string
 
 
 def format_string(string):

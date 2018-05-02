@@ -48,7 +48,7 @@ def add_argument(parser):
 def get_folder_prefix(args, model):
     import os
     if args.exp_name is not None:
-        model_folder = 'model' + os.sep + args.exp_name
+        model_folder = 'saved_checkpoint' + os.sep + args.exp_name
         if not os.path.exists(model_folder):
             os.makedirs(model_folder)
         model_prefix = model_folder + os.sep + args.exp_name
@@ -62,7 +62,7 @@ def get_folder_prefix(args, model):
 
 
 def get_data_dict(args):
-    from .corpus.corpus import WebQACorpus
+    from corpus import WebQACorpus
     import torch
 
     if args.load_file is None:

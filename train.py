@@ -6,13 +6,13 @@ import time
 from argparse import ArgumentParser
 import torch
 import torch.nn as nn
-from base import evalutate
-from base import DocumentReaderQA
-from base import add_argument, get_folder_prefix, get_data_dict
+from evaluate import evalutate
+from model import DocumentReaderQA
+import utils
 from predict import predict_answer
 
 parser = ArgumentParser(description='Document Reader QA')
-add_argument(parser)
+utils.add_argument(parser)
 args = parser.parse_args()
 
 if args.debug:
@@ -29,11 +29,11 @@ torch.manual_seed(int(seed))
 if args.device >= 0:
     torch.cuda.set_device(args.device)
 
-word_dict, pos_dict, ner_dict, train_data, dev_data, test_data = get_data_dict(args)
+word_dict, pos_dict, ner_dict, train_data, dev_data, test_data = utils.get_data_dict(args)
 
 model = DocumentReaderQA(word_dict, args, [pos_dict, ner_dict], [args.pos_vec_size, args.ner_vec_size])
 
-model_folder, model_prefix = get_folder_prefix(args, model)
+model_folder, model_prefix = utils.get_folder_prefix(args, model)
 
 if args.device >= 0:
     model.cuda(args.device)

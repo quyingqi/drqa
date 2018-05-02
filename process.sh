@@ -12,6 +12,6 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name bilstm_last_aligned-2 \
--load-file data/train.baidu+sogou.pt
+-exp-name bilstm_last_aligned-1 \
 -load-file data/debug_data/train.pt
+-load-file data/train.baidu+sogou.pt

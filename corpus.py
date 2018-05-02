@@ -10,7 +10,7 @@ except:
     import json
 import torch
 from torch.autograd import Variable
-from pt4nlp import Dictionary, Constants
+from layers import Dictionary, Constants
 
 
 def convert2longtensor(x):

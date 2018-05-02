@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 from torch.autograd import Variable
-from pt4nlp.mask_util import lengths2mask
-from pt4nlp import Embeddings, BilinearMatcher, DotWordSeqAttetnion, PaddBasedRNNEncoder, RNNEncoder
+from layers.mask_util import lengths2mask
+from layers import Embeddings, BilinearMatcher, DotWordSeqAttetnion, PaddBasedRNNEncoder, RNNEncoder
 
 
 def get_rnn(opt, input_size):

@@ -7,9 +7,9 @@ from argparse import ArgumentParser
 import sys, os
 import numpy as np
 import torch
-from base import DocumentReaderQA
-from base import WebQACorpus
-from base.evaluate import evaluate
+from model import DocumentReaderQA
+from corpus import WebQACorpus
+import evaluate
 
 qid_answer_expand = evaluate.load_qid_answer_expand('data/qid_answer_expand/qid_answer_expand.all')
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
