@@ -52,7 +52,8 @@ class DocumentReaderQA(nn.Module):
 #        self.soft_align_linear = nn.Linear(self.embedding.output_size, self.embedding.output_size)
         self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
-        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
+#        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
+        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1)
 
         self.start_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
@@ -138,7 +139,8 @@ class DocumentReaderQA(nn.Module):
         e_word_emb = self.embedding.forward(batch.e_text)
         aligned_feature = self.get_soft_align_embedding(q_word_emb, e_word_emb, batch.q_lens, batch.e_lens)
         # (batch, e_len, e_size)
-        evidence_embedding = self.get_evidence_embedding(batch, aligned_feature)
+#        evidence_embedding = self.get_evidence_embedding(batch, aligned_feature)
+        evidence_embedding = self.get_evidence_embedding(batch)
 
         # Size Check
         batch_size = question_embedding.size(0)

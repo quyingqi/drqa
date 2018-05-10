@@ -153,9 +153,9 @@ class WebQACorpus(object):
                                                                        word_dict=self.word_d,
                                                                        ner_dict=self.ner_dict,
                                                                        pos_dict=self.pos_dict)
-        self.question_dict = question_dict
-        self.evidence_dict = evidence_dict
-        self.data = train_pair
+        self.question_dict = question_dict # {q_key: [question, [eid]]}
+        self.evidence_dict = evidence_dict # {eid: evidence}
+        self.data = train_pair  # (q_key, eid)
         self.batch_size = batch_size
         self.device = device
         self.volatile = volatile
@@ -287,6 +287,8 @@ class WebQACorpus(object):
                 if count % 5000 == 0:
                     print(count)
 
+        print('load data from %s, get %s qe pairs. ' %(filename, len(train_pair)))
+
         return question_dict, evidence_dict, train_pair
 
     @staticmethod
@@ -371,7 +373,7 @@ class BatchQuestion(object):
 
 
 def test():
-    corpus = WebQACorpus("baidu_data.json")
+    corpus = WebQACorpus("data/baidu_data.json")
     for data in corpus.next_question():
         for index, (start, end, leng) in enumerate(torch.cat([data.start_position.unsqueeze(-1),
                                                               data.end_position.unsqueeze(-1),

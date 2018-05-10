@@ -1,8 +1,8 @@
 python train.py \
--word-vectors data/penny.cbow.dim300.bin \
+-word-vectors data/xmu.cbow.dim300.bin \
 -epoch 10 \
 -batch 32 \
--device 2 \
+-device 3 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
@@ -12,6 +12,6 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name bilstm_last_aligned-1 \
+-exp-name bilstm_last_shuffle-xmu \
+-load-file data/train.baidu+sogou-shuffle.pt
 -load-file data/debug_data/train.pt
--load-file data/train.baidu+sogou.pt
