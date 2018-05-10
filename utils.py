@@ -4,16 +4,16 @@
 from __future__ import absolute_import
 
 
-def add_data_argument(parser):
+def add_argument(parser):
+    # Data Option
     parser.add_argument('-train-file', type=str, dest="train_file", default="data/train.all.json")
     parser.add_argument('-dev-file', type=str, dest="dev_file", default="valid_factoid_1.json")
     parser.add_argument('-test-file', type=str, dest="test_file", default=None)
     parser.add_argument('-save-file', type=str, dest="save_file", default=None)
     parser.add_argument('-load-file', type=str, dest="load_file", default=None)
     parser.add_argument('-topk', type=int, dest="topk", default=30000)
+    parser.add_argument('-dict', type=str, dest="dict_file", default='data/vocab.pt')
 
-
-def add_argument(parser):
     # Train Option
     parser.add_argument('-epoch', type=int, dest="epoch", default=50)
     parser.add_argument('-batch', type=int, dest="batch", default=32)
@@ -44,6 +44,14 @@ def add_argument(parser):
     parser.add_argument('-clip', type=float, default=9.0, dest="clip", help='clip grad by norm')
     parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
+    # Predict Option
+    parser.add_argument('-batch', type=int, dest="batch", default=128)
+    parser.add_argument('-device', type=int, dest="device", default=-1)
+    parser.add_argument('-model', type=str, dest="model_file", default=None)
+    parser.add_argument('-test', type=str, dest="test_file", required=True)
+    parser.add_argument('-output', type=str, dest="out_file", default=None)
+    parser.add_argument('-question', action='store_true', dest="question")
+
 
 def get_folder_prefix(args, model):
     import os
@@ -61,7 +69,7 @@ def get_folder_prefix(args, model):
     return model_folder, model_prefix
 
 
-def get_data_dict(args):
+def get_data_dict(args, pt_file):
     from corpus import WebQACorpus
     import torch
 
