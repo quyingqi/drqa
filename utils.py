@@ -2,15 +2,19 @@
 # -*- coding: utf-8 -*-
 # Created by Roger on 2017/11/28
 from __future__ import absolute_import
+from argparse import ArgumentParser
 
 
-def add_argument(parser):
+def add_argument():
+    parser = ArgumentParser(description='Document Reader QA')
     # Data Option
-    parser.add_argument('-train-file', type=str, dest="train_file", default="data/train.all.json")
-    parser.add_argument('-dev-file', type=str, dest="dev_file", default="valid_factoid_1.json")
+    parser.add_argument('-baidu-file', type=str, dest="baidu_file", default="data/baidu_data.json")
+    parser.add_argument('-baidu-data', type=str, dest="baidu_data", default="data/baidu_data.pt")
+    parser.add_argument('-train-file', type=str, dest="train_file", default="data/sogou_shuffle_train.json")
+    parser.add_argument('-train-data', type=str, dest="train_data", default="data/sogou_shuffle_train.pt")
+    parser.add_argument('-valid-file', type=str, dest="valid_file", default="data/sogou_shuffle_valid.json")
+    parser.add_argument('-valid-data', type=str, dest="valid_data", default="data/sogou_shuffle_valid.pt")
     parser.add_argument('-test-file', type=str, dest="test_file", default=None)
-    parser.add_argument('-save-file', type=str, dest="save_file", default=None)
-    parser.add_argument('-load-file', type=str, dest="load_file", default=None)
     parser.add_argument('-topk', type=int, dest="topk", default=30000)
     parser.add_argument('-dict', type=str, dest="dict_file", default='data/vocab.pt')
 
@@ -49,6 +53,8 @@ def add_argument(parser):
     parser.add_argument('-output', type=str, dest="out_file", default=None)
     parser.add_argument('-question', action='store_true', dest="question")
 
+    args = parser.parse_args()
+    return args
 
 def get_folder_prefix(args, model):
     import os
@@ -64,33 +70,3 @@ def get_folder_prefix(args, model):
         model_folder = None
         model_prefix = None
     return model_folder, model_prefix
-
-
-def get_data_dict(args, pt_file):
-    from corpus import WebQACorpus
-    import torch
-
-    if args.load_file is None:
-        word_dict, pos_dict, ner_dict = WebQACorpus.load_word_dictionary(args.train_file)
-        word_dict.cut_by_top(args.topk)
-        train_data = WebQACorpus(args.train_file, batch_size=50, device=-1,
-                                 word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
-        dev_data = WebQACorpus(args.dev_file, batch_size=50, device=-1,
-                               word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
-        if args.test_file is None:
-            test_data = None
-        else:
-            test_data = WebQACorpus(args.test_file, batch_size=50, device=-1,
-                                    word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
-    else:
-        word_dict, pos_dict, ner_dict, train_data, dev_data, test_data = torch.load(open(args.load_file, 'rb'))
-
-    train_data.set_batch_size(args.batch)
-    dev_data.set_batch_size(args.batch)
-    train_data.set_device(args.device)
-    dev_data.set_device(args.device)
-    if test_data is not None:
-        test_data.set_batch_size(args.batch)
-        test_data.set_device(args.device)
-
-    return word_dict, pos_dict, ner_dict, train_data, dev_data, test_data

@@ -12,6 +12,4 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name bilstm_last_shuffle-xmu \
--load-file data/train.baidu+sogou-shuffle.pt
--load-file data/debug_data/train.pt
+-exp-name sep_3_7_xmu

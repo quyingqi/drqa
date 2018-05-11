@@ -3,13 +3,13 @@
 # Created by Roger on 2017/10/24
 from __future__ import absolute_import
 import codecs
-from argparse import ArgumentParser
 import sys, os
 import numpy as np
 import torch
 from model import DocumentReaderQA
 from corpus import WebQACorpus
 import evaluate
+import utils
 
 qid_answer_expand = evaluate.load_qid_answer_expand('data/qid_answer_expand/qid_answer_expand.all')
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
@@ -53,18 +53,8 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
 
 
 def main():
-    parser = ArgumentParser(description='Web QA Reader')
 
-    # Train Option
-    parser.add_argument('-batch', type=int, dest="batch", default=128)
-    parser.add_argument('-device', type=int, dest="device", default=-1)
-    parser.add_argument('-model', type=str, dest="model_file", default=None)
-    parser.add_argument('-dict', type=str, dest="dict_file", default=None)
-    parser.add_argument('-test', type=str, dest="test_file", required=True)
-    parser.add_argument('-output', type=str, dest="out_file", default=None)
-    parser.add_argument('-question', action='store_true', dest="question")
-
-    args = parser.parse_args()
+    args = utils.add_argument()
     word_d, pos_d, ner_d = torch.load(args.dict_file)
 
     if args.device >= 0:

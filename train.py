@@ -3,7 +3,6 @@
 # Created by Roger on 2017/10/24
 from __future__ import absolute_import
 import time
-from argparse import ArgumentParser
 import torch
 import torch.nn as nn
 from evaluate import evalutate
@@ -11,9 +10,7 @@ from model import DocumentReaderQA
 import utils
 from predict import predict_answer
 
-parser = ArgumentParser(description='Document Reader QA')
-utils.add_argument(parser)
-args = parser.parse_args()
+args = utils.add_argument()
 
 if args.debug:
     args.train_file = "data/debug_data/baidu.debug.json"
@@ -29,7 +26,16 @@ torch.manual_seed(int(seed))
 if args.device >= 0:
     torch.cuda.set_device(args.device)
 
-word_dict, pos_dict, ner_dict, train_data, dev_data, test_data = utils.get_data_dict(args)
+def get_data_dict(args, pt_file):
+    data = torch.load(open(pt_file, 'rb'))
+    data.set_batch_size(args.batch)
+    data.set_device(args.device)
+    return data
+
+word_dict, pos_dict, ner_dict = torch.load(open(args.dict_file, 'rb'))
+baidu_data = get_data_dict(args, args.baidu_data)
+train_data = get_data_dict(args, args.train_data)
+valid_data = get_data_dict(args, args.valid_data)
 
 model = DocumentReaderQA(word_dict, args, [pos_dict, ner_dict], [args.pos_vec_size, args.ner_vec_size])
 
@@ -92,7 +98,7 @@ def train_epoch(_model, _data):
 
 def eval_epoch(_model, _data):
     _model.eval()
-    q_p, c_f = eval_model(model, dev_data)
+    q_p, c_f = eval_model(model, valid_data)
     return q_p, c_f
 
 
@@ -110,11 +116,14 @@ for iter_i in range(args.epoch):
     start = time.time()
 
     model.train()
-    train_loss = train_epoch(model, train_data)
+    if iter_i < 3:
+        train_loss = train_epoch(model, baidu_data)
+    else:
+        train_loss = train_epoch(model, train_data)
     train_end = time.time()
 
     model.eval()
-    q_p, c_f = eval_epoch(model, dev_data)
+    q_p, c_f = eval_epoch(model, valid_data)
     eval_end = time.time()
 
     train_time = train_end - start
