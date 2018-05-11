@@ -19,7 +19,6 @@ def add_argument(parser):
     parser.add_argument('-batch', type=int, dest="batch", default=32)
     parser.add_argument('-device', type=int, dest="device", default=-1)
     parser.add_argument('-seed', type=int, dest="seed", default=1993)
-    add_data_argument(parser)
     parser.add_argument('-exp-name', type=str, dest="exp_name", default=None, help="save model to model/$exp-name$/")
     parser.add_argument('-debug', dest="debug", action='store_true')
 
@@ -45,10 +44,8 @@ def add_argument(parser):
     parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
     # Predict Option
-    parser.add_argument('-batch', type=int, dest="batch", default=128)
-    parser.add_argument('-device', type=int, dest="device", default=-1)
     parser.add_argument('-model', type=str, dest="model_file", default=None)
-    parser.add_argument('-test', type=str, dest="test_file", required=True)
+    parser.add_argument('-test', type=str, dest="test_file", default=None)
     parser.add_argument('-output', type=str, dest="out_file", default=None)
     parser.add_argument('-question', action='store_true', dest="question")
 

@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 import torch
 import argparse
-from utils import get_data_dict, add_data_argument
+from utils import get_data_dict, add_argument
 from corpus import WebQACorpus
 
 
@@ -35,7 +35,7 @@ def preprocess_data(args):
 
 def main():
     parser = argparse.ArgumentParser(description='Document Reader QA')
-    add_data_argument(parser)
+    add_argument(parser)
     args = parser.parse_args()
     preprocess_data(args)
 
