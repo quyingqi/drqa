@@ -1,0 +1,3 @@
+loading word embedding from data/penny.cbow.dim300.bin
+loaded 29639 words pre-trained from data/penny.cbow.dim300.bin with 300
+Init 365 words in uniform [-1.7365413249602015, 1.7365413249602015]
