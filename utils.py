@@ -49,8 +49,8 @@ def add_argument():
 
     # Predict Option
     parser.add_argument('-model', type=str, dest="model_file", default=None)
-    parser.add_argument('-test', type=str, dest="test_file", default=None)
-    parser.add_argument('-output', type=str, dest="out_file", default=None)
+    parser.add_argument('-test', type=str, dest="test_file", default='data/sogou_shuffle_valid.json')
+    parser.add_argument('-output', type=str, dest="out_file", default='output/result')
     parser.add_argument('-question', action='store_true', dest="question")
 
     args = parser.parse_args()

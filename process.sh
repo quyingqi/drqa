@@ -1,8 +1,8 @@
 python train.py \
--word-vectors data/xmu.cbow.dim300.bin \
+-word-vectors data/penny.cbow.dim300.bin \
 -epoch 10 \
 -batch 32 \
--device 3 \
+-device 2 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
@@ -12,4 +12,4 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name sep_3_7_xmu
+-exp-name sim-dot-all

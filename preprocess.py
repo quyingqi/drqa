@@ -10,6 +10,7 @@ from corpus import WebQACorpus
 def preprocess_data(args):
     w, p, n = WebQACorpus.load_word_dictionary(args.baidu_file)
     word_dict, pos_dict, ner_dict = WebQACorpus.load_word_dictionary(args.train_file, w, p, n)
+    word_dict.cut_by_top(args.topk)
     torch.save([word_dict, pos_dict, ner_dict], open(args.dict_file, 'wb'))
 
     baidu_data = WebQACorpus(args.baidu_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)

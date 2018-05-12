@@ -3,13 +3,15 @@
 # Created by Roger on 2017/10/24
 from __future__ import absolute_import
 import codecs
-import sys
+import sys, os
 import numpy as np
 import torch
 from model import DocumentReaderQA
 from corpus import WebQACorpus
+import evaluate
 import utils
 
+qid_answer_expand = evaluate.load_qid_answer_expand('data/qid_answer_expand/qid_answer_expand.all')
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
     answer_dict = dict()
 
@@ -37,12 +39,16 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         q_text = u''.join(q_text)
 
         answer_dict[q_key] = answer
+        is_match = evaluate.is_exact_match_answer(q_key, answer, qid_answer_expand)
+        gold = qid_answer_expand[q_key][1]
         if output_flag:
             if write_question:
-                output.write("%s\t%s\t%s\n" % (q_key, q_text, answer))
+                output.write("%s\t%s\t%s\t%s\t%s\n" % (q_key, q_text, answer, is_match, gold))
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
+    q_level_p, char_level_f = evaluate.evalutate(answer_dict)
+    print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p, char_level_f))
     return answer_dict
 
 

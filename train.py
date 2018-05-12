@@ -89,7 +89,7 @@ def train_epoch(_model, _data):
         back_time = time.time()
         backward_time += back_time - end_time
 
-        if batch_index % 100 == 0:
+        if batch_index % 500 == 0:
             print("iter: %d  %.2f  loss: %f" %(batch_index, batch_index/num_batch, loss.data[0]))
 
     print(forward_time, data_time, backward_time)
@@ -116,10 +116,14 @@ for iter_i in range(args.epoch):
     start = time.time()
 
     model.train()
+    '''
     if iter_i < 3:
         train_loss = train_epoch(model, baidu_data)
     else:
         train_loss = train_epoch(model, train_data)
+    '''
+    train_loss = train_epoch(model, baidu_data)
+    train_loss += train_epoch(model, train_data)
     train_end = time.time()
 
     model.eval()
@@ -142,15 +146,12 @@ for iter_i in range(args.epoch):
 
     if model_prefix is not None:
         if best_loss > train_loss:
-            torch.save([word_dict, pos_dict, ner_dict], model_prefix + '.best.loss.dict')
             torch.save(model, model_prefix + '.best.loss.model')
             best_loss = train_loss
         if best_cf < c_f:
-            torch.save([word_dict, pos_dict, ner_dict], model_prefix + '.best.char.f1.dict')
             torch.save(model, model_prefix + '.best.char.f1.model')
             best_cf = c_f
         if best_qp < q_p:
-            torch.save([word_dict, pos_dict, ner_dict], model_prefix + '.best.query.pre.dict')
             torch.save(model, model_prefix + '.best.query.pre.model')
             best_qp = q_p
 
