@@ -12,4 +12,4 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name sim-dot-all
+-exp-name ans_idx_all

@@ -71,7 +71,7 @@ class Evidence(object):
         return Evidence(e_key, e_text, e_text_index, e_feature, starts, ends)
 
     @staticmethod
-    def batchify(data, ans_idx):
+    def batchify(data):
         e_key, e_real_text, e_text_index, e_feature_index, starts, ends = zip(*data)
         e_feature_size = e_feature_index[0].size()[1]
 
@@ -86,14 +86,8 @@ class Evidence(object):
             e_text[i, :].narrow(0, 0, length).copy_(e_text_index[i])
             e_feature[i, :, :].narrow(0, 0, length).copy_(e_feature_index[i])
 
-        try:
-            start_position = convert2longtensor([start[idx] for start, idx in zip(starts, ans_idx)])
-            end_position = convert2longtensor([end[idx] for end, idx in zip(ends, ans_idx)])
-        except:
-            print(e_key)
-            print(starts)
-            print(ends)
-            print(ans_idx)
+        start_position = convert2longtensor([start[0] for start in starts])
+        end_position = convert2longtensor([end[0] for end in ends])
 
         e_lens = convert2longtensor(e_lens)
 
@@ -184,12 +178,12 @@ class WebQACorpus(object):
     def set_batch_size(self, batch_size=50):
         self.batch_size = batch_size
 
-    def _question_evidence(self, question_ids, evidence_ids, ans_idx):
+    def _question_evidence(self, question_ids, evidence_ids):
         questions = [self.question_dict[qid][0] for qid in question_ids]
         evidences = [self.evidence_dict[eid] for eid in evidence_ids]
 
         q_text, q_feature, q_lens, q_key, q_real_text = Question.batchify(questions)
-        e_text, e_feature, e_lens, start_position, end_position, e_key, e_real_text = Evidence.batchify(evidences, ans_idx)
+        e_text, e_feature, e_lens, start_position, end_position, e_key, e_real_text = Evidence.batchify(evidences)
 
         q_text, q_feature, q_lens = [convert2variable(x, self.device, self.volatile)
                                      for x in [q_text, q_feature, q_lens]]
@@ -201,8 +195,8 @@ class WebQACorpus(object):
                e_feature, q_key, e_key, q_real_text, e_real_text
 
     def _batchify(self, data):
-        question_ids, evidence_ids, ans_idx = zip(*data)
-        return self._question_evidence(question_ids, evidence_ids, ans_idx)
+        question_ids, evidence_ids = zip(*data)
+        return self._question_evidence(question_ids, evidence_ids)
 
     def next_batch(self, shuffle=True):
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
@@ -286,17 +280,7 @@ class WebQACorpus(object):
                         # Skip No Answer Evidence when Train
                         continue
 
-                    l = len(e.starts)
-                    if len(e.starts) != len(e.ends):
-                        continue
-                        '''
-                        print(question.q_key, u''.join(question.q_text), e.e_key, u' '.join(e.e_text))
-                        print(e.starts)
-                        print(e.ends)
-                        l = min(len(e.starts), len(e.ends))
-                        '''
-                    for i in range(l): # 把同一evidence的不同(start, end)也作为不同的记录
-                        train_pair.append((question.q_key, eid, i))
+                    train_pair.append((question.q_key, eid))
 
                 question_dict[question.q_key] = [question, all_evidence]
 
