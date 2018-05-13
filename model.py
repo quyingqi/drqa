@@ -59,12 +59,6 @@ class DocumentReaderQA(nn.Module):
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
 
         self.dropout = nn.Dropout(p=opt.dropout)
-        self.question_out = nn.Sequential(
-                            self.dropout,
-                            nn.Linear(self.question_encoder.output_size, 20))
-        self.evidence_out = nn.Sequential(
-                            self.dropout,
-                            nn.Linear(self.evidence_encoder.output_size, 20))
 
         self.ceLoss = nn.CrossEntropyLoss()
 
@@ -164,7 +158,6 @@ class DocumentReaderQA(nn.Module):
         # (batch, e_len)
         e_mask = lengths2mask(batch.e_lens, e_max_len)
 
-        '''
         # (batch, q_size) -> # (batch, 1, q_size)
         q_embedding = question_embedding.unsqueeze(1)
 
@@ -187,21 +180,14 @@ class DocumentReaderQA(nn.Module):
         # batch * e_len -> (batch, e_len)
         start_score = start_score.view(batch_size, e_max_len) * e_mask
         end_score = end_score.view(batch_size, e_max_len) * e_mask
-        '''
 
+        '''
+        # sim_dot
         q_embedding = question_embedding.unsqueeze(1)
         e_embedding = evidence_embedding.contiguous()
-        '''
-        # (batch, 1, q_size) -> (batch, 1, 20)
-        q_out = self.question_out(q_embedding)
-        # (batch, e_len, e_size) -> (batch, e_len, 20)
-        e_out = self.evidence_out(e_embedding)
-        # (batch, 1, e_len) -> (batch, e_len)
-        start_score = torch.bmm(q_out, e_out.transpose(1, 2)).squeeze(1) * e_mask
-        end_score = torch.bmm(q_out, e_out.transpose(1, 2)).squeeze(1) * e_mask
-        '''
         start_score = torch.bmm(q_embedding, e_embedding.transpose(1, 2)).squeeze(1) * e_mask
         end_score = torch.bmm(q_embedding, e_embedding.transpose(1, 2)).squeeze(1) * e_mask
+        '''
 
         return start_score, end_score
 

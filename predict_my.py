@@ -3,7 +3,7 @@
 # Created by Roger on 2017/10/24
 from __future__ import absolute_import
 import codecs
-import sys, os
+import sys, os, math
 import numpy as np
 import torch
 from model import DocumentReaderQA
@@ -27,23 +27,43 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         q_key = str(question.q_keys[0])
 
         q_text = question.question_raw_text
+        q_text = u''.join(q_text)
 
         pred_s, pred_e, pred_score, para_id = model.predict(question)
 
+        # 找出最大的score所对应的答案
         max_index = np.argmax(pred_score)
         start_position = pred_s[max_index][0]
         end_position = pred_e[max_index][0]
         evidence_id = para_id[max_index]
+        answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
 
-        answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
-        q_text = u''.join(q_text)
+        # 对于所有的evidence, 找出答案后 按score排序
+        answers = []
+        for i in range(len(pred_score)):
+            start_position = pred_s[i][0]
+            end_position = pred_e[i][0]
+            evidence_id = para_id[i]
+            answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
+            answers.append(answer)
+        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
 
-        answer_dict[q_key] = answer
-        is_match = evaluate.is_exact_match_answer(q_key, answer, qid_answer_expand)
+        # 把相同的答案 分数合并
+        answers_merge = {}
+        for ans, score in answers_sort:
+            answers_merge[ans] = answers_merge.get(ans, 0) + math.log(score+1)
+        answers_merge_sort = sorted(answers_merge.items(), key=lambda x:x[1], reverse=True)
         gold = qid_answer_expand[q_key][1]
+
+        answer = answers_merge_sort[0][0]
+        answer_dict[q_key] = answer
+
+        # 输出到日志文件
         if output_flag:
             if write_question:
-                output.write("%s\t%s\t%s\t%s\t%s\n" % (q_key, q_text, answer, is_match, gold))
+                is_match = evaluate.is_exact_match_answer(q_key, answer, qid_answer_expand)
+                gold = qid_answer_expand[q_key][1]
+                output.write("%s\t%s\t%s\t%s\t%s\n" % (q_key, q_text, gold, answers_merge_sort, is_match))
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
