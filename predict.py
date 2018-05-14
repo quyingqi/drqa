@@ -12,6 +12,7 @@ import utils
 
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
     answer_dict = dict()
+    answer_dict_old = dict()
 
     if output_flag:
         if output_file:
@@ -62,7 +63,9 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
-    return answer_dict
+        answer_dict_old[q_key] = answer_max
+
+    return answer_dict, answer_dict_old
 
 
 def main():

@@ -1,3 +1,4 @@
+corpus.py train_data.pt
 qyq@oncedi:~/drqa$ python preprocess.py 
 After cut, Dictionary Size is 30004, raw is 734810.
 5000
@@ -42,6 +43,7 @@ saving baidu_data ...
 saving train_data ...
 saving valid_data ...
 
+corpus2.py -> corpus.py train_data-2.pt
 # 去掉了starts个数和ends不一样的
 qyq@oncedi:~/drqa$ python preprocess.py 
 5000
@@ -60,6 +62,32 @@ load data from data/baidu_data.json, get 225111 qe pairs.
 load data from data/sogou_shuffle_train.json, get 111898 qe pairs. 
 5000
 load data from data/sogou_shuffle_valid.json, get 22142 qe pairs. 
+saving baidu_data ...
+saving train_data ...
+saving valid_data ...
+
+corpus3.py train_data-3.pt
+# 去掉了starts个数和ends不一样的
+qyq@oncedi:~/drqa$ python preprocess.py -baidu-data data/baidu_data-3.pt -train-data data/sogou_shuffle_train-3.pt -valid-data data/sogou_shuffle_valid-3.pt
+data/baidu_data-3.pt
+data/sogou_shuffle_train-3.pt
+data/sogou_shuffle_valid-3.pt
+5000
+10000
+15000
+20000
+25000
+30000
+35000
+load data from data/baidu_data.json, get 140782 qe pairs. 
+5000
+10000
+15000
+20000
+25000
+load data from data/sogou_shuffle_train.json, get 77866 qe pairs. 
+5000
+load data from data/sogou_shuffle_valid.json, get 15526 qe pairs. 
 saving baidu_data ...
 saving train_data ...
 saving valid_data ...

@@ -62,6 +62,8 @@ class DocumentReaderQA(nn.Module):
 
         self.ceLoss = nn.CrossEntropyLoss()
 
+        self.device = opt.device
+
         self.reset_parameters()
 
     def reset_parameters(self):
@@ -191,7 +193,7 @@ class DocumentReaderQA(nn.Module):
 
         return start_score, end_score
 
-    def loss(self, batch):
+    def loss_old(self, batch):
         start_score, end_score = self.score(batch)
 
         def log_sum_exp(x, dim=0):
@@ -217,11 +219,39 @@ class DocumentReaderQA(nn.Module):
 
         return loss
 
-    def loss_new(self, batch):
+    def loss_2(self, batch):
         start_score, end_score = self.score(batch)
 
         start_right_score = batch.start_position
         end_right_score = batch.end_position
+
+        start_loss = self.ceLoss(start_score, start_right_score)
+        end_loss = self.ceLoss(end_score, end_right_score)
+
+        loss = start_loss + end_loss
+        return loss
+
+    def loss(self, batch):
+        start_score, end_score = self.score(batch)
+
+        _, start_pos = torch.max(start_score, dim=1)
+        _, end_pos = torch.max(end_score, dim=1)
+        start_pos = start_pos.data.cpu()
+        end_pos = end_pos.data.cpu()
+
+        right_s = batch.start_position
+        right_e = batch.end_position
+
+        best_start = [x[0] for x in right_s]
+        best_end = [x[0] for x in right_e]
+
+        for i in range(len(best_start)):
+            if len(right_s[i]) == len(right_e[i]) and start_pos[i] in right_s[i]:
+                best_start[i] = start_pos[i]
+                best_end[i] = end_pos[i]
+
+        start_right_score = Variable(torch.LongTensor(best_start).cuda(self.device))
+        end_right_score = Variable(torch.LongTensor(best_end).cuda(self.device))
 
         start_loss = self.ceLoss(start_score, start_right_score)
         end_loss = self.ceLoss(end_score, end_right_score)

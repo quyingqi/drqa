@@ -9,13 +9,13 @@ def add_argument():
     parser = ArgumentParser(description='Document Reader QA')
     # Data Option
     parser.add_argument('-baidu-file', type=str, dest="baidu_file", default="data/baidu_data.json")
-    parser.add_argument('-baidu-data', type=str, dest="baidu_data", default="data/baidu_data-2.pt")
+    parser.add_argument('-baidu-data', type=str, dest="baidu_data", default="data/baidu_data.pt")
     parser.add_argument('-train-file', type=str, dest="train_file", default="data/sogou_shuffle_train.json")
     parser.add_argument('-train-data', type=str, dest="train_data",
-                        default="data/sogou_shuffle_train-2.pt")
+                        default="data/sogou_shuffle_train.pt")
     parser.add_argument('-valid-file', type=str, dest="valid_file", default="data/sogou_shuffle_valid.json")
     parser.add_argument('-valid-data', type=str, dest="valid_data",
-                        default="data/sogou_shuffle_valid-2.pt")
+                        default="data/sogou_shuffle_valid.pt")
     parser.add_argument('-test-file', type=str, dest="test_file", default=None)
     parser.add_argument('-topk', type=int, dest="topk", default=30000)
     parser.add_argument('-dict', type=str, dest="dict_file", default='data/vocab.pt')

@@ -86,8 +86,15 @@ class Evidence(object):
             e_text[i, :].narrow(0, 0, length).copy_(e_text_index[i])
             e_feature[i, :, :].narrow(0, 0, length).copy_(e_feature_index[i])
 
-        start_position = convert2longtensor([start[0] for start in starts])
-        end_position = convert2longtensor([end[0] for end in ends])
+        '''
+        start_position = []
+        end_position = []
+        for s,e in zip(starts, ends):
+            start_position.append(convert2longtensor(s))
+            end_position.append(convert2longtensor(e))
+        '''
+        start_position = starts
+        end_position = ends
 
         e_lens = convert2longtensor(e_lens)
 
@@ -187,9 +194,8 @@ class WebQACorpus(object):
 
         q_text, q_feature, q_lens = [convert2variable(x, self.device, self.volatile)
                                      for x in [q_text, q_feature, q_lens]]
-        e_text, e_feature, e_lens, start_position, end_position = [convert2variable(x, self.device, self.volatile)
-                                                                   for x in [e_text, e_feature, e_lens,
-                                                                             start_position, end_position]]
+        e_text, e_feature, e_lens, = [convert2variable(x, self.device, self.volatile)
+                                                        for x in [e_text, e_feature, e_lens]]
 
         return q_text, e_text, start_position, end_position, q_lens, e_lens, q_feature, \
                e_feature, q_key, e_key, q_real_text, e_real_text
@@ -280,6 +286,8 @@ class WebQACorpus(object):
                         # Skip No Answer Evidence when Train
                         continue
 
+                    if len(e.starts) != len(e.ends): # 把长度不一样的去掉
+                        continue
                     train_pair.append((question.q_key, eid))
 
                 question_dict[question.q_key] = [question, all_evidence]

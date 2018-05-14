@@ -56,9 +56,10 @@ opt = getattr(torch.optim, args.optimizer)(params, lr=args.lr, weight_decay=args
 
 
 def eval_model(_model, _data):
-    answer_dict = predict_answer(_model, _data)
+    answer_dict, answer_dict_old = predict_answer(_model, _data)
     q_level_p, char_level_f = evalutate(answer_dict)
-    return q_level_p, char_level_f
+    q_level_p_old, char_level_f_old = evalutate(answer_dict_old)
+    return q_level_p, char_level_f, q_level_p_old, char_level_f_old
 
 
 def train_epoch(_model, _data):
@@ -98,8 +99,8 @@ def train_epoch(_model, _data):
 
 def eval_epoch(_model, _data):
     _model.eval()
-    q_p, c_f = eval_model(model, valid_data)
-    return q_p, c_f
+    res = eval_model(model, valid_data)
+    return res
 
 
 print("training")
@@ -127,7 +128,7 @@ for iter_i in range(args.epoch):
     train_end = time.time()
 
     model.eval()
-    q_p, c_f = eval_epoch(model, valid_data)
+    q_p, c_f, q_p_old, c_f_old = eval_epoch(model, valid_data)
     eval_end = time.time()
 
     train_time = train_end - start
@@ -137,7 +138,8 @@ for iter_i in range(args.epoch):
     time_str = "%s | %s" % (int(train_time), int(eval_time))
     train_loss_str = "Loss: %.2f" % train_loss
     eval_result = "Query Pre: %.2f: Char F1: %.2f" % (q_p, c_f)
-    log_str = ' | '.join([iter_str, time_str, train_loss_str, eval_result])
+    eval_result_old = "Query Pre: %.2f: Char F1: %.2f" % (q_p_old, c_f_old)
+    log_str = ' | '.join([iter_str, time_str, train_loss_str, eval_result, eval_result_old])
 
     print(log_str)
     if log_output is not None:
