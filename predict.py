@@ -13,6 +13,8 @@ import utils
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
     answer_dict = dict()
     answer_dict_old = dict()
+    correct_s, correct_e, correct = 0, 0, 0
+    total = 0
 
     if output_flag:
         if output_file:
@@ -30,10 +32,24 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
 
         pred_s, pred_e, pred_score, para_id = model.predict(question)
 
+        # 计算每条(question, evidence)的准确率
+        pred = np.stack((pred_s, pred_e))
+        right_s = question.start_position.data.cpu().numpy()
+        right_e = question.end_position.data.cpu().numpy()
+        right = np.stack((right_s, right_e))
+        compare = (pred == right)
+        correct_se  = np.sum(compare, 1)
+        correct_s += correct_se[0]
+        correct_e += correct_se[1]
+        correct += np.sum(np.sum(compare, 0) == 2)
+        has_answer = np.sum(right_s >= 0)
+#        total += len(pred_score)
+        total += has_answer
+
         # 找出最大的score所对应的答案
         max_index = np.argmax(pred_score)
-        start_position = pred_s[max_index][0]
-        end_position = pred_e[max_index][0]
+        start_position = pred_s[max_index]
+        end_position = pred_e[max_index]
         evidence_id = para_id[max_index]
         answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
         answer_dict_old[q_key] = answer_max
@@ -41,8 +57,8 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         # 对于所有的evidence, 找出答案后 按score排序
         answers = []
         for i in range(len(pred_score)):
-            start_position = pred_s[i][0]
-            end_position = pred_e[i][0]
+            start_position = pred_s[i]
+            end_position = pred_e[i]
             evidence_id = para_id[i]
             answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
             answers.append(answer)
@@ -64,8 +80,11 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
+    acc_s = correct_s / total
+    acc_e = correct_e / total
+    acc = correct / total
 
-    return answer_dict, answer_dict_old
+    return answer_dict, answer_dict_old, acc_s, acc_e, acc
 
 
 def main():

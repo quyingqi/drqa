@@ -118,9 +118,9 @@ class DocumentReaderQA(nn.Module):
         q_hidden_embs, _ = self.question_encoder.forward(q_word_emb, lengths=batch.q_lens)
         q_hidden_embs = q_hidden_embs.contiguous()
 
-#        q_hidden_emb, _ = self.question_attention.forward(question_attention_p, q_hidden_embs, lengths=batch.q_lens)
+        q_hidden_emb, _ = self.question_attention.forward(question_attention_p, q_hidden_embs, lengths=batch.q_lens)
 
-        return _
+        return q_hidden_emb
 
     def get_evidence_embedding(self, batch, aligned_feature=None):
         e_input = torch.cat([batch.e_text.unsqueeze(-1), batch.e_feature[:, :, :2]], dim=-1)
@@ -296,8 +296,8 @@ class DocumentReaderQA(nn.Module):
                 idx_sort = idx[np.argsort(-scores_flat[idx])]
             s_idx, e_idx = np.unravel_index(idx_sort, scores.shape)
 
-            pred_s.append(s_idx)
-            pred_e.append(e_idx)
+            pred_s.append(s_idx[0])  # 默认取top1，否则 改成s_idx
+            pred_e.append(e_idx[0])
             pred_score.append(scores_flat[idx_sort])
             para_id.append(i)
         return pred_s, pred_e, pred_score, para_id

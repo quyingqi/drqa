@@ -15,6 +15,8 @@ qid_answer_expand = evaluate.load_qid_answer_expand('data/qid_answer_expand/qid_
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
     answer_dict = dict()
     answer_dict_old = dict()
+    correct_s, correct_e, correct = 0, 0, 0
+    total = 0
 
     if output_flag:
         if output_file:
@@ -32,10 +34,24 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
 
         pred_s, pred_e, pred_score, para_id = model.predict(question)
 
+        # 计算每条(question, evidence)的准确率
+        pred = np.stack((pred_s, pred_e))
+        right_s = question.start_position.data.cpu().numpy()
+        right_e = question.end_position.data.cpu().numpy()
+        right = np.stack((right_s, right_e))
+        compare = (pred == right)
+        correct_se  = np.sum(compare, 1)
+        correct_s += correct_se[0]
+        correct_e += correct_se[1]
+        correct += np.sum(np.sum(compare, 0) == 2)
+        has_answer = np.sum(right_s >= 0)
+#        total += len(pred_score)
+        total += has_answer
+
         # 找出最大的score所对应的答案
         max_index = np.argmax(pred_score)
-        start_position = pred_s[max_index][0]
-        end_position = pred_e[max_index][0]
+        start_position = pred_s[max_index]
+        end_position = pred_e[max_index]
         evidence_id = para_id[max_index]
         answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
         answer_dict_old[q_key] = answer_max
@@ -43,8 +59,8 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         # 对于所有的evidence, 找出答案后 按score排序
         answers = []
         for i in range(len(pred_score)):
-            start_position = pred_s[i][0]
-            end_position = pred_e[i][0]
+            start_position = pred_s[i]
+            end_position = pred_e[i]
             evidence_id = para_id[i]
             answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
             answers.append(answer)
@@ -55,7 +71,6 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         for ans, score in zip(answers, pred_score):
             answers_merge[ans] = answers_merge.get(ans, 0) + math.sqrt(score)
         answers_merge_sort = sorted(answers_merge.items(), key=lambda x:x[1], reverse=True)
-        gold = qid_answer_expand[q_key][1]
 
         answer = answers_merge_sort[0][0]
         answer_dict[q_key] = answer
@@ -71,6 +86,10 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
 
     q_level_p, char_level_f = evaluate.evalutate(answer_dict)
     q_level_p_old, char_level_f_old = evaluate.evalutate(answer_dict_old)
+    acc_s = correct_s / total
+    acc_e = correct_e / total
+    acc = correct / total
+    print('acc: %.2f\tacc_start: %.2f\tacc_end: %.2f' %(acc, acc_s, acc_e))
     print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p_old, char_level_f_old))
     print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p, char_level_f))
     return answer_dict
@@ -88,8 +107,11 @@ def main():
 
     model.eval()
 
-    corpus = WebQACorpus(args.test_file, batch_size=args.batch, device=args.device,
-                         word_dict=word_d, pos_dict=pos_d, ner_dict=ner_d)
+#    corpus = WebQACorpus(args.test_file, batch_size=args.batch, device=args.device,
+#                         word_dict=word_d, pos_dict=pos_d, ner_dict=ner_d)
+    corpus = torch.load(args.valid_data)
+    corpus.set_batch_size(args.batch)
+    corpus.set_device(args.device)
 
     predict_answer(model, corpus, args.out_file, write_question=args.question, output_flag=False)
 
