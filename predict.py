@@ -36,6 +36,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         end_position = pred_e[max_index][0]
         evidence_id = para_id[max_index]
         answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
+        answer_dict_old[q_key] = answer_max
 
         # 对于所有的evidence, 找出答案后 按score排序
         answers = []
@@ -45,12 +46,12 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             evidence_id = para_id[i]
             answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
             answers.append(answer)
-        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
+#        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
 
         # 把相同的答案 分数合并
         answers_merge = {}
-        for ans, score in answers_sort:
-            answers_merge[ans] = answers_merge.get(ans, 0) + math.log(score+1)
+        for ans, score in zip(answers, pred_score):
+            answers_merge[ans] = answers_merge.get(ans, 0) + math.sqrt(score)
         answers_merge_sort = sorted(answers_merge.items(), key=lambda x:x[1], reverse=True)
 
         answer = answers_merge_sort[0][0]
@@ -63,7 +64,6 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
-        answer_dict_old[q_key] = answer_max
 
     return answer_dict, answer_dict_old
 

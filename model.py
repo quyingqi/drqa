@@ -118,9 +118,9 @@ class DocumentReaderQA(nn.Module):
         q_hidden_embs, _ = self.question_encoder.forward(q_word_emb, lengths=batch.q_lens)
         q_hidden_embs = q_hidden_embs.contiguous()
 
-        q_hidden_emb, _ = self.question_attention.forward(question_attention_p, q_hidden_embs, lengths=batch.q_lens)
+#        q_hidden_emb, _ = self.question_attention.forward(question_attention_p, q_hidden_embs, lengths=batch.q_lens)
 
-        return q_hidden_emb
+        return _
 
     def get_evidence_embedding(self, batch, aligned_feature=None):
         e_input = torch.cat([batch.e_text.unsqueeze(-1), batch.e_feature[:, :, :2]], dim=-1)
@@ -219,7 +219,7 @@ class DocumentReaderQA(nn.Module):
 
         return loss
 
-    def loss_2(self, batch):
+    def loss(self, batch):
         start_score, end_score = self.score(batch)
 
         start_right_score = batch.start_position
@@ -231,7 +231,7 @@ class DocumentReaderQA(nn.Module):
         loss = start_loss + end_loss
         return loss
 
-    def loss(self, batch):
+    def loss_3(self, batch):
         start_score, end_score = self.score(batch)
 
         _, start_pos = torch.max(start_score, dim=1)

@@ -14,6 +14,7 @@ import utils
 qid_answer_expand = evaluate.load_qid_answer_expand('data/qid_answer_expand/qid_answer_expand.all')
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):
     answer_dict = dict()
+    answer_dict_old = dict()
 
     if output_flag:
         if output_file:
@@ -37,6 +38,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         end_position = pred_e[max_index][0]
         evidence_id = para_id[max_index]
         answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
+        answer_dict_old[q_key] = answer_max
 
         # 对于所有的evidence, 找出答案后 按score排序
         answers = []
@@ -46,12 +48,12 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             evidence_id = para_id[i]
             answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
             answers.append(answer)
-        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
+#        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
 
         # 把相同的答案 分数合并
         answers_merge = {}
-        for ans, score in answers_sort:
-            answers_merge[ans] = answers_merge.get(ans, 0) + math.log(score+1)
+        for ans, score in zip(answers, pred_score):
+            answers_merge[ans] = answers_merge.get(ans, 0) + math.sqrt(score)
         answers_merge_sort = sorted(answers_merge.items(), key=lambda x:x[1], reverse=True)
         gold = qid_answer_expand[q_key][1]
 
@@ -68,6 +70,8 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
                 output.write("%s\t%s\n" % (q_key, answer))
 
     q_level_p, char_level_f = evaluate.evalutate(answer_dict)
+    q_level_p_old, char_level_f_old = evaluate.evalutate(answer_dict_old)
+    print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p_old, char_level_f_old))
     print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p, char_level_f))
     return answer_dict
 
@@ -87,7 +91,7 @@ def main():
     corpus = WebQACorpus(args.test_file, batch_size=args.batch, device=args.device,
                          word_dict=word_d, pos_dict=pos_d, ner_dict=ner_d)
 
-    predict_answer(model, corpus, args.out_file, write_question=args.question, output_flag=True)
+    predict_answer(model, corpus, args.out_file, write_question=args.question, output_flag=False)
 
 
 if __name__ == "__main__":
