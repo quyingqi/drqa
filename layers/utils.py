@@ -83,6 +83,7 @@ def load_word2vec_format(filename, word_idx, binary=False, normalize=False,
                 if len(parts) != vector_size + 1:
                     raise ValueError("invalid vector on line %s (is this really the text format?)" % line_no)
                 word, weights = parts[0], list(map(REAL, parts[1:]))
+                weights = torch.from_numpy(np.array(weights))
                 add_word(word, weights)
     if word_idx is not None:
         assert (len(word_idx), vector_size) == word_matrix.size()
