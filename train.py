@@ -140,7 +140,7 @@ for iter_i in range(args.epoch):
     acc_result = "Acc: %.2f Acc_s: %.2f Acc_e: %.2f" %(acc, acc_s, acc_e)
     eval_result = "Query Pre: %.2f: Char F1: %.2f" % (q_p, c_f)
     eval_result_old = "Query Pre: %.2f: Char F1: %.2f" % (q_p_old, c_f_old)
-    log_str = ' | '.join([iter_str, time_str, train_loss_str, eval_result, eval_result_old])
+    log_str = ' | '.join([iter_str, time_str, train_loss_str, acc_result, eval_result, eval_result_old])
 
     print(log_str)
     if log_output is not None:

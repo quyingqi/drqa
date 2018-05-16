@@ -68,8 +68,12 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
 
         # 把相同的答案 分数合并
         answers_merge = {}
+        cnt = {}
         for ans, score in zip(answers, pred_score):
             answers_merge[ans] = answers_merge.get(ans, 0) + math.sqrt(score)
+            cnt[ans] = cnt.get(ans, 0) + 1
+        for ans, score in answers_merge.items():
+            answers_merge[ans] = score/math.sqrt(cnt[ans])
         answers_merge_sort = sorted(answers_merge.items(), key=lambda x:x[1], reverse=True)
 
         answer = answers_merge_sort[0][0]
