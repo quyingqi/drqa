@@ -4,7 +4,7 @@ import utils
 
 args = utils.add_argument()
 word_d, pos_d, ner_d = torch.load(args.dict_file)
-corpus = WebQACorpus('java_preprocess/sogou_shuffle_valid.json', batch_size=args.batch, device=args.device,
+corpus = WebQACorpus('java_preprocess/sogou_shuffle_train.json', batch_size=args.batch, device=args.device,
                          word_dict=word_d, pos_dict=pos_d, ner_dict=ner_d)
 
 for question in corpus.next_question():
