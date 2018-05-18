@@ -110,3 +110,4 @@ output/
 DuReader_v2.0_preprocess/
 saved_checkpoint/
 data/
+java_preprocess/

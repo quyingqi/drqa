@@ -1,0 +1,9 @@
+awk 'BEGIN{srand()}{b[rand()NR]=$0}END{for(x in b)print b[x]}' java.temp.raw_data > java.temp.shuffle
+head -24000 java.temp.shuffle > java.temp.shuffle.train
+tail -6000 java.temp.shuffle > java.temp.shuffle.valid
+
+python json_read.py --input_file java.temp.shuffle.train --output_file sogou_shuffle_train.json --expand_file ../data/qid_answer_expand/qid_answer_expand.all --type train
+python json_read.py --input_file java.temp.shuffle.valid --output_file sogou_shuffle_valid.json --expand_file ../data/qid_answer_expand/qid_answer_expand.all --type train
+
+cd ../
+python java_preprocess_debug.py > java_preprocess/sogou_shuffle_train.debug

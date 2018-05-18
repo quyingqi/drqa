@@ -7,7 +7,7 @@ import sys, math
 import numpy as np
 import torch
 from model import DocumentReaderQA
-from corpus3 import WebQACorpus
+from corpus import WebQACorpus
 import utils
 
 def predict_answer(model, data_corpus, output_file=None, write_question=False, output_flag=False):

@@ -2,7 +2,7 @@ python train.py \
 -word-vectors data/penny.cbow.dim300.bin \
 -epoch 10 \
 -batch 32 \
--device 2 \
+-device 0 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
@@ -12,7 +12,8 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name celoss-score_sqrt-corpus3 \
+-resume_snapshot saved_checkpoint/celoss-score_sqrt/celoss-score_sqrt.best.loss.model \
+-exp-name celoss-score_sqrt-continue
 -baidu-data data/baidu_data-3.pt \
 -train-data data/sogou_shuffle_train-3.pt \
 -valid-data data/sogou_shuffle_valid-3.pt

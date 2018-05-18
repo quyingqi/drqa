@@ -27,6 +27,7 @@ def add_argument():
     parser.add_argument('-seed', type=int, dest="seed", default=1993)
     parser.add_argument('-exp-name', type=str, dest="exp_name", default=None, help="save model to model/$exp-name$/")
     parser.add_argument('-debug', dest="debug", action='store_true')
+    parser.add_argument('-resume_snapshot', type=str, dest='resume_snapshot', default=None)
 
     # Model Option
     parser.add_argument('-word-vec-size', type=int, dest="word_vec_size", default=300)

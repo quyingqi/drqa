@@ -25,6 +25,7 @@ torch.manual_seed(int(seed))
 
 if args.device >= 0:
     torch.cuda.set_device(args.device)
+    torch.cuda.manual_seed(int(seed))
 
 def get_data_dict(args, pt_file):
     data = torch.load(open(pt_file, 'rb'))
@@ -37,7 +38,11 @@ baidu_data = get_data_dict(args, args.baidu_data)
 train_data = get_data_dict(args, args.train_data)
 valid_data = get_data_dict(args, args.valid_data)
 
-model = DocumentReaderQA(word_dict, args, [pos_dict, ner_dict], [args.pos_vec_size, args.ner_vec_size])
+if args.resume_snapshot:
+    model = torch.load(args.resume_snapshot, map_location=lambda storage, loc: storage)
+    print('load model from %s' % args.resume_snapshot)
+else:
+    model = DocumentReaderQA(word_dict, args, [pos_dict, ner_dict], [args.pos_vec_size, args.ner_vec_size])
 
 model_folder, model_prefix = utils.get_folder_prefix(args, model)
 
