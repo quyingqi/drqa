@@ -156,12 +156,12 @@ for iter_i in range(args.epoch):
         if best_loss > train_loss:
             torch.save(model, model_prefix + '.best.loss.model')
             best_loss = train_loss
-        if best_cf < c_f:
+        if best_cf < c_f_old:
             torch.save(model, model_prefix + '.best.char.f1.model')
-            best_cf = c_f
-        if best_qp < q_p:
+            best_cf = c_f_old
+        if best_qp < q_p_old:
             torch.save(model, model_prefix + '.best.query.pre.model')
-            best_qp = q_p
+            best_qp = q_p_old
 
 if log_output is not None:
     log_output.write("Best Train Loss: %s\n" % best_loss)

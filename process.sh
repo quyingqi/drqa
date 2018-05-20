@@ -12,8 +12,8 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name new_data \
--baidu-data data/baidu_data.pt \
--train-data data/sogou_shuffle_train-4.pt \
--valid-data data/sogou_shuffle_valid-4.pt
+-exp-name ee_feature-2 \
+-baidu-data data/baidu_data-5.pt \
+-train-data data/sogou_shuffle_train-5.pt \
+-valid-data data/sogou_shuffle_valid-5.pt
 -resume_snapshot saved_checkpoint/celoss-score_sqrt/celoss-score_sqrt.best.loss.model \

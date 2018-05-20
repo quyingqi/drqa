@@ -33,6 +33,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         q_text = u''.join(q_text)
 
         pred_s, pred_e, pred_score, para_id = model.predict(question)
+        pred_score = [i[0] for i in pred_score]
 
         # 计算每条(question, evidence)的准确率
         pred = np.stack((pred_s, pred_e))
@@ -64,7 +65,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             evidence_id = para_id[i]
             answer = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
             answers.append(answer)
-#        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
+        answers_sort = sorted(zip(answers, pred_score), key=lambda x:x[1], reverse=True)
 
         # 把相同的答案 分数合并
         answers_merge = {}
@@ -84,7 +85,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
             if write_question:
                 is_match = evaluate.is_exact_match_answer(q_key, answer, qid_answer_expand)
                 gold = qid_answer_expand[q_key][1]
-                output.write("%s\t%s\t%s\t%s\t%s\n" % (q_key, q_text, gold, answers_merge_sort, is_match))
+                output.write("%s\t%s\t%s\t%s\t%s\n" % (q_key, q_text, gold, answers_sort, is_match))
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
 
@@ -94,7 +95,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
     acc_e = correct_e / total
     acc = correct / total
     print('acc: %.2f\tacc_start: %.2f\tacc_end: %.2f' %(acc, acc_s, acc_e))
-    print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p_old, char_level_f_old))
+    print('q_level_p_old: %.2f\tchar_level_f_old: %.2f' %(q_level_p_old, char_level_f_old))
     print('q_level_p: %.2f\tchar_level_f: %.2f' %(q_level_p, char_level_f))
     return answer_dict
 
@@ -117,7 +118,7 @@ def main():
     corpus.set_batch_size(args.batch)
     corpus.set_device(args.device)
 
-    predict_answer(model, corpus, args.out_file, write_question=args.question, output_flag=False)
+    predict_answer(model, corpus, args.out_file, write_question=args.question, output_flag=True)
 
 
 if __name__ == "__main__":

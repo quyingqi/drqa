@@ -1,8 +1,8 @@
 #--*- coding:utf-8 -*--
 import json
 import sys
-#reload(sys)
-#sys.setdefaultencoding("utf-8")
+import torch, math
+sys.path.append('../')
 def loadExpandDict(expand_file):
     expand = open(expand_file)
     answer_dict = {}
@@ -15,6 +15,10 @@ def loadExpandDict(expand_file):
         answer_dict[qid] = list(answer_expand)
 
     return answer_dict
+
+def get_word_frequency(dict_file):
+    word_dict, pos_dict, ner_dict = torch.load(dict_file)
+    return word_dict.word_count
 
 def point_exact(golden_answer, evidence_str, evidence_tokens, evidence_charstart):
     start_dict = {}
@@ -113,8 +117,9 @@ def lowerList(list):
     return result_list
 
 
-def formatsougoudata(filepath, expand_file, is_train, output_path):
+def formatsougoudata(filepath, expand_file, is_train, output_path, dict_file):
     answer_dict = loadExpandDict(expand_file)
+    word_cnt = get_word_frequency(dict_file)
     f = open(filepath)
     result = open(output_path, 'w')
     idx = 0
@@ -207,14 +212,18 @@ def formatsougoudata(filepath, expand_file, is_train, output_path):
             evidence_tokens = evi_dict['evidence_tokens']
             evidence_pos = evi_dict['evidence_pos']
             fre_tokens = []
+            fre_ratio = []
             for i in range(len(evidence_tokens)):
                 token = evidence_tokens[i]
                 pos = evidence_pos[i]
                 if pos == 'PU':
                     fre_tokens.append(0)
+                    fre_ratio.append(0)
                 else:
                     fre_tokens.append(frecounter[token])
+                    fre_ratio.append(frecounter[token]/(math.log(word_cnt.get(token, 1))+1))
             evi_dict['fre_tokens'] = fre_tokens
+            evi_dict['fre_ratio'] = fre_ratio
         linedict['evidences'] = evidencelist
 
         outputline = json.dumps(linedict)
@@ -312,6 +321,7 @@ if __name__ == '__main__':
     parser.add_argument('--output_file', dest='output_path', type=str, help='filepath for the output data')
     parser.add_argument('--origin_file', dest='origin_path', type=str, help='origin file by sougou')
     parser.add_argument('--expand_file', dest='expand_path', type=str, help='expand file by sougou')
+    parser.add_argument('--dict_file', dest='dict_file', type=str, default='../data/vocab.pt')
     # fileinput = '/home/iscas/fym/codes/sougou_train.json'
     # output = './test.json'
     args = parser.parse_args()
@@ -321,7 +331,7 @@ if __name__ == '__main__':
     expand_path = args.expand_path
 
     if type_name == 'train' or type_name == 'validation':
-        formatsougoudata(input_path, expand_path,True, output_path)
+        formatsougoudata(input_path, expand_path,True, output_path, args.dict_file)
     elif type_name =="test":
         formatsougoudata2(input_path, False, output_path)
     else:

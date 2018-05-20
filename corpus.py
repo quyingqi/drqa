@@ -64,9 +64,12 @@ class Evidence(object):
         e_pos = evidence['evidence_pos']
         e_ner = evidence['evidence_ners']
         qe_feature = convert2longtensor(evidence["qecomm"])
+        ee_fre = convert2longtensor(evidence['fre_tokens'])
+#        ee_ratio = torch.FloatTensor(evidence['fre_ratio'])
         e_ner_index = convert2longtensor(ner_dict.convert_to_index(e_ner, Constants.UNK_WORD))
         e_pos_index = convert2longtensor(pos_dict.convert_to_index(e_pos, Constants.UNK_WORD))
-        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature], dim=1)
+        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre], dim=1)
+#        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre, ee_ratio], dim=1)
 
         return Evidence(e_key, e_text, e_text_index, e_feature, starts, ends)
 

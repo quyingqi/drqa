@@ -53,7 +53,7 @@ class DocumentReaderQA(nn.Module):
         self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
 #        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
-        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1)
+        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 2)
 
         self.start_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
@@ -126,7 +126,8 @@ class DocumentReaderQA(nn.Module):
         e_input = torch.cat([batch.e_text.unsqueeze(-1), batch.e_feature[:, :, :2]], dim=-1)
         e_word_emb = self.embedding.forward(e_input)
 
-        evidence_input_emb = [e_word_emb, batch.e_feature[:, :, -1].unsqueeze(-1).float()]
+#        evidence_input_emb = [e_word_emb, batch.e_feature[:, :, -1].unsqueeze(-1).float()]
+        evidence_input_emb = [e_word_emb, batch.e_feature[:, :, 2:].float()]
 
         if aligned_feature is not None:
             evidence_input_emb.append(aligned_feature)

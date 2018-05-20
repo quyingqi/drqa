@@ -1,6 +1,7 @@
 #python predict.py -test data/sogou_valid.json \
 python predict_my.py -test data/sogou_shuffle_valid.json \
--device 3 \
--model saved_checkpoint/remove_question_att/remove_question_att.best.query.pre.model \
--output output/tmp
+-valid-data data/sogou_shuffle_valid-5.pt \
+-device 0 \
+-model saved_checkpoint/ee_feature-2/ee_feature-2.best.char.f1.model \
+-output output/ee_feature_old \
 -question \
