@@ -4,7 +4,7 @@
 from __future__ import absolute_import
 import torch
 from utils import add_argument
-from corpus import WebQACorpus
+from corpus7 import WebQACorpus
 
 
 def preprocess_data(args):

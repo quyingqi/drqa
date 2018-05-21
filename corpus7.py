@@ -38,6 +38,7 @@ class Evidence(object):
 
     @staticmethod
     def load_one_evidence(evidence, word_dict, pos_dict, ner_dict):
+        res = []
         e_key = evidence['e_key']
         e_text = evidence["evidence_tokens"]
 
@@ -56,9 +57,6 @@ class Evidence(object):
         else:
             ends = [-1]
 
-        # if starts[0] == -1 or ends[0] == -1:
-        #     return None
-
         e_text_index = convert2longtensor(word_dict.convert_to_index(e_text, Constants.UNK_WORD))
 
         e_pos = evidence['evidence_pos']
@@ -71,7 +69,29 @@ class Evidence(object):
         e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre], dim=1)
 #        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre, ee_ratio], dim=1)
 
-        return Evidence(e_key, e_text, e_text_index, e_feature, starts, ends)
+        res.append(Evidence(e_key, e_text, e_text_index, e_feature, starts, ends))
+        if len(starts) > 3:
+            return res
+
+        for i in range(1, len(starts)):
+            s1 = ends[i-1]
+            s2 = starts[i]
+            k = None
+            for j in range(s1, s2):
+                if e_pos[j] == 'PU':
+                    k = j+1
+                    break
+            if not k:
+                continue
+            e_key_i = e_key+'_'+str(i)
+            e_text_i = e_text[k:]
+            e_text_index_i = e_text_index[k:]
+            e_feature_i = e_feature[k:, :]
+            starts_i = [starts[i]-k]
+            ends_i = [ends[i]-k]
+#            print(e_key, starts, starts_i, u' '.join(e_text_i))
+            res.append(Evidence(e_key_i, e_text_i, e_text_index_i, e_feature_i, starts_i, ends_i))
+        return res
 
     @staticmethod
     def batchify(data):
@@ -253,10 +273,7 @@ class WebQACorpus(object):
 
             evidence_data = Evidence.load_one_evidence(evidence, word_dict, pos_dict, ner_dict)
 
-            if evidence_data is None:
-                continue
-
-            evidences.append(evidence_data)
+            evidences.extend(evidence_data)
 
         return question, evidences
 

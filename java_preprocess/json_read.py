@@ -119,7 +119,7 @@ def lowerList(list):
 
 def formatsougoudata(filepath, expand_file, is_train, output_path, dict_file):
     answer_dict = loadExpandDict(expand_file)
-    word_cnt = get_word_frequency(dict_file)
+#    word_cnt = get_word_frequency(dict_file)
     f = open(filepath)
     result = open(output_path, 'w')
     idx = 0
@@ -212,18 +212,18 @@ def formatsougoudata(filepath, expand_file, is_train, output_path, dict_file):
             evidence_tokens = evi_dict['evidence_tokens']
             evidence_pos = evi_dict['evidence_pos']
             fre_tokens = []
-            fre_ratio = []
+#            fre_ratio = []
             for i in range(len(evidence_tokens)):
                 token = evidence_tokens[i]
                 pos = evidence_pos[i]
                 if pos == 'PU':
                     fre_tokens.append(0)
-                    fre_ratio.append(0)
+#                    fre_ratio.append(0)
                 else:
                     fre_tokens.append(frecounter[token])
-                    fre_ratio.append(frecounter[token]/(math.log(word_cnt.get(token, 1))+1))
+#                    fre_ratio.append(round(frecounter[token]/(math.log(word_cnt.get(token, 1))+1)*10))
             evi_dict['fre_tokens'] = fre_tokens
-            evi_dict['fre_ratio'] = fre_ratio
+#            evi_dict['fre_ratio'] = fre_ratio
         linedict['evidences'] = evidencelist
 
         outputline = json.dumps(linedict)
