@@ -63,38 +63,43 @@ class Evidence(object):
 
         e_pos = evidence['evidence_pos']
         e_ner = evidence['evidence_ners']
-        qe_feature = convert2longtensor(evidence["qecomm"])
-        ee_fre = convert2longtensor(evidence['fre_tokens'])
-#        ee_ratio = convert2longtensor(evidence['fre_ratio'])
         e_ner_index = convert2longtensor(ner_dict.convert_to_index(e_ner, Constants.UNK_WORD))
         e_pos_index = convert2longtensor(pos_dict.convert_to_index(e_pos, Constants.UNK_WORD))
-        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre], dim=1)
-#        e_feature = torch.stack([e_pos_index, e_ner_index, qe_feature, ee_fre, ee_ratio], dim=1)
 
-        return Evidence(e_key, e_text, e_text_index, e_feature, starts, ends)
+        qe_feature = torch.FloatTensor(evidence["qecomm"])
+        ee_fre = torch.FloatTensor(evidence['fre_tokens'])
+        ee_com = torch.FloatTensor(evidence['eefeature'])
+        dis_edit = torch.FloatTensor(evidence['feature_edit_distance'])
+        dis_jaccard = torch.FloatTensor(evidence['feature_jasscard'])
+#        ee_ratio = torch.FloatTensor(evidence['fre_ratio'])
+        e_feature_index = torch.stack([e_text_index, e_pos_index, e_ner_index], dim=1)
+        e_feature_float = torch.stack([qe_feature, ee_fre, ee_com, dis_edit, dis_jaccard], dim=1)
+
+        return Evidence(e_key, e_text, e_feature_index, e_feature_float, starts, ends)
 
     @staticmethod
     def batchify(data):
-        e_key, e_real_text, e_text_index, e_feature_index, starts, ends = zip(*data)
-        e_feature_size = e_feature_index[0].size()[1]
+        e_key, e_real_text, e_feature_index, e_feature_float, starts, ends = zip(*data)
+        e_feature_index_size = e_feature_index[0].size()[1]
+        e_feature_float_size = e_feature_float[0].size()[1]
 
-        e_lens = [e_text_index[i].size(0) for i in range(len(data))]
+        e_lens = [len(e_real_text[i]) for i in range(len(data))]
 
         max_e_length = max(e_lens)
-        e_text = e_text_index[0].new(len(data), max_e_length).fill_(Constants.PAD)
-        e_feature = e_feature_index[0].new(len(data), max_e_length, e_feature_size).fill_(Constants.PAD)
+        e_index = e_feature_index[0].new(len(data), max_e_length, e_feature_index_size).fill_(Constants.PAD)
+        e_feature = e_feature_float[0].new(len(data), max_e_length, e_feature_float_size).fill_(Constants.PAD)
 
         for i in range(len(data)):
-            length = e_text_index[i].size(0)
-            e_text[i, :].narrow(0, 0, length).copy_(e_text_index[i])
-            e_feature[i, :, :].narrow(0, 0, length).copy_(e_feature_index[i])
+            length = e_lens[i]
+            e_index[i, :, :].narrow(0, 0, length).copy_(e_feature_index[i])
+            e_feature[i, :, :].narrow(0, 0, length).copy_(e_feature_float[i])
 
         start_position = convert2longtensor([start[0] for start in starts])
         end_position = convert2longtensor([end[0] for end in ends])
 
         e_lens = convert2longtensor(e_lens)
 
-        return e_text, e_feature, e_lens, start_position, end_position, e_key, e_real_text
+        return e_index, e_feature, e_lens, start_position, end_position, e_key, e_real_text
 
 
 class Question(object):

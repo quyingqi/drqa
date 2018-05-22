@@ -123,11 +123,12 @@ for iter_i in range(args.epoch):
 
     model.train()
     '''
-    if iter_i < 3:
+    if iter_i % 3 == 0:
         train_loss = train_epoch(model, baidu_data)
     else:
         train_loss = train_epoch(model, train_data)
     '''
+
     train_loss = train_epoch(model, baidu_data)
     train_loss += train_epoch(model, train_data)
     train_end = time.time()

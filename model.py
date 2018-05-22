@@ -53,7 +53,7 @@ class DocumentReaderQA(nn.Module):
         self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
 #        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
-        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 2)
+        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 5)
 
         self.start_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
@@ -123,11 +123,11 @@ class DocumentReaderQA(nn.Module):
         return q_hidden_emb
 
     def get_evidence_embedding(self, batch, aligned_feature=None):
-        e_input = torch.cat([batch.e_text.unsqueeze(-1), batch.e_feature[:, :, :2]], dim=-1)
+#        e_input = torch.cat([batch.e_text.unsqueeze(-1), batch.e_feature[:, :, :2]], dim=-1)
+        e_input = batch.e_text
         e_word_emb = self.embedding.forward(e_input)
 
-#        evidence_input_emb = [e_word_emb, batch.e_feature[:, :, -1].unsqueeze(-1).float()]
-        evidence_input_emb = [e_word_emb, batch.e_feature[:, :, 2:].float()]
+        evidence_input_emb = [e_word_emb, batch.e_feature]
 
         if aligned_feature is not None:
             evidence_input_emb.append(aligned_feature)
@@ -142,9 +142,10 @@ class DocumentReaderQA(nn.Module):
         # (batch, q_size)
         question_embedding = self.get_question_embedding(batch)
 
-        q_word_emb = self.embedding.forward(batch.q_text)
-        e_word_emb = self.embedding.forward(batch.e_text)
-        aligned_feature = self.get_soft_align_embedding(q_word_emb, e_word_emb, batch.q_lens, batch.e_lens)
+#        q_word_emb = self.embedding.forward(batch.q_text)
+#        e_word_emb = self.embedding.forward(batch.e_text)
+#        aligned_feature = self.get_soft_align_embedding(q_word_emb, e_word_emb, batch.q_lens, batch.e_lens)
+
         # (batch, e_len, e_size)
 #        evidence_embedding = self.get_evidence_embedding(batch, aligned_feature)
         evidence_embedding = self.get_evidence_embedding(batch)
