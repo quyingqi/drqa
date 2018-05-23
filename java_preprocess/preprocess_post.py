@@ -102,11 +102,23 @@ def feature_extractor(filepath, output):
         evidencelist = linedict['evidences']
 
         ## temp_dict for judge ee
-
+        question_str = "".join(question_tokens)
         token_dict = {}
+        character_dict = {}
+        character_e_dict = {}
+
         for i, evidencedict in enumerate(evidencelist):
             evidence_tokens = evidencedict['evidence_tokens']
             for token in evidence_tokens:
+                for t in token:
+                    if t in character_dict:
+                        character_dict[t] = character_dict[t] + 1
+                        if i not in character_e_dict[t]:
+                            character_e_dict[t].append(i)
+                    else:
+                        character_dict[t] = 1
+                        character_e_dict[t] = [i]
+
                 if token not in token_dict:
                     token_dict[token] = [i]
                 elif i not in token_dict[token]:
@@ -119,13 +131,43 @@ def feature_extractor(filepath, output):
         for evidencedict in evidencelist:
             evidence_ekey = evidencedict['e_key']
             evidence_tokens = evidencedict['evidence_tokens']
+            evidence_pos = evidencedict['evidence_pos']
 
             ## add eefeature
             eefeature = []
-            for token in evidence_tokens:
-                eefeature.append(token_dict[token])
-            evidencedict['f_eecomm'] = eefeature
+            fre_tokens_c = []
+            eefeature_c = []
+            qe_feature_c = []
 
+            for i, token in enumerate(evidence_tokens):
+                eefeature.append(token_dict[token])
+
+                count = 0
+                count_e = 0
+                count_q = 0
+                for t in token:
+                    count += character_dict[t]
+                    count_e += float(len(character_e_dict[t]))/all_count
+                    if t in question_str:
+                        count_q += 1
+                qe_c = round(float(count_q) / len(token), 2)
+                qe_feature_c.append(qe_c)
+
+                if evidence_pos[i] == 'PU':
+                    fre_tokens_c.append(0)
+                else:
+                    fre_c = round(float(count) / len(token), 2)
+                    fre_tokens_c.append(fre_c)
+
+                ee_c = round(count_e/len(token), 2)
+                eefeature_c.append(ee_c)
+
+
+            evidencedict['f_eecomm'] = eefeature
+            evidencedict['fre_token_c'] = fre_tokens_c
+            evidencedict['f_eecomm_c'] = eefeature_c
+            evidencedict['qe_feature_c'] = qe_feature_c
+ 
             ## add_edit_distance
             feature_jasscard, feature_edit_distance = distance_features(question_tokens, evidence_tokens)
             evidencedict['f_edit_dist'] = feature_edit_distance

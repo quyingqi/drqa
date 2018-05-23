@@ -180,7 +180,7 @@ saving train_data ...
 saving valid_data ...
 
 corpus.py 加入新的三个特征 jaccard, edit-distance, eecom 
-qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/sogou_shuffle_train-dis.json -valid-file java_preprocess/sogou_shuffle_valid-dis.json -train-data data/sogou_shuffle_train-8.pt -valid-data data/sogou_shuffle_valid-8.pt
+qyq@oncedi:~/drqa$ python preprocess.py -baidu-file java_preprocess/baidu_data-dis.json -train-file java_preprocess/sogou_shuffle_train-dis.json -valid-file java_preprocess/sogou_shuffle_valid-dis.json -baidu-data data/baidu_data-8.pt -train-data data/sogou_shuffle_train-8.pt -valid-data data/sogou_shuffle_valid-8.pt 
 data/baidu_data.pt
 data/sogou_shuffle_train-8.pt
 data/sogou_shuffle_valid-8.pt
