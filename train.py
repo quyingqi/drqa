@@ -43,14 +43,13 @@ if args.resume_snapshot:
     print('load model from %s' % args.resume_snapshot)
 else:
     model = DocumentReaderQA(word_dict, args, [pos_dict, ner_dict], [args.pos_vec_size, args.ner_vec_size])
+    if args.word_vectors != 'random':
+        model.embedding.load_pretrained_vectors(args.word_vectors, binary=True, normalize=args.word_normalize)
 
 model_folder, model_prefix = utils.get_folder_prefix(args, model)
 
 if args.device >= 0:
     model.cuda(args.device)
-
-if args.word_vectors != 'random':
-    model.embedding.load_pretrained_vectors(args.word_vectors, binary=True, normalize=args.word_normalize)
 
 params = list()
 for name, param in model.named_parameters():

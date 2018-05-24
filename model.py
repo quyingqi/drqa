@@ -53,7 +53,7 @@ class DocumentReaderQA(nn.Module):
         self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
 #        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
-        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 5)
+        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 8)
 
         self.start_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
@@ -107,6 +107,13 @@ class DocumentReaderQA(nn.Module):
         # (batch, e_len, word_size)
         e_emb_aligned = torch.sum(weight * q_word_emb_expand, 2)
         return e_emb_aligned
+
+    def random_zeros(self, inputs, n):
+        ones = torch.ones(inputs.size()).long()
+        rand_idx = [np.random.choice(ones.size(0), n), np.random.choice(ones.size(1), n),
+                    np.random.choice(ones.size(2), n)]
+        ones[rand_idx] = 0
+        return inputs*Variable(ones).cuda(self.device)
 
     def get_question_embedding(self, batch):
         question_attention_p = self.question_attention_p.unsqueeze(0)
@@ -279,6 +286,7 @@ class DocumentReaderQA(nn.Module):
         for i in range(score_s.size(0)):
             # Outer product of scores to get full p_s * p_e matrix
             scores = torch.ger(score_s[i], score_e[i])
+#            scores = torch.exp(score_s[i]).unsqueeze(1) + torch.exp(score_e[i]).unsqueeze(0)
 
             if isinstance(scores, Variable):
                 scores = scores.data
