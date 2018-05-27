@@ -290,7 +290,8 @@ class DocumentReaderQA(nn.Module):
         max_len = max_len or score_s.size(1)
         for i in range(score_s.size(0)):
             # Outer product of scores to get full p_s * p_e matrix
-            scores = torch.ger(score_s[i], score_e[i])
+#            scores = torch.ger(score_s[i], score_e[i])
+            scores = score_s[i].unsqueeze(1) + score_e[i].unsqueeze(0)
 #            scores = torch.exp(score_s[i]).unsqueeze(1) + torch.exp(score_e[i]).unsqueeze(0)
 
             if isinstance(scores, Variable):
@@ -323,6 +324,23 @@ class DocumentReaderQA(nn.Module):
 
         pred_s, pred_e, pred_score, para_id = self.decode(start_score, end_score, top_n=top_n, max_len=max_len)
 
+        return pred_s, pred_e, pred_score, para_id
+
+    @staticmethod
+    def ensemble_predict(models, q_evidens, weights=None, top_n=1, max_len=15):
+        if weights is not None:
+            assert len(weights) == len(models)
+        else:
+            weights = [1. / len(models)] * len(models)
+        start_score_list, end_score_list = list(), list()
+        for index, model in enumerate(models):
+            start_score, end_score = model.score(q_evidens)
+            start_score_list += [start_score * weights[index]]
+            end_score_list += [end_score * weights[index]]
+        start_score = sum(start_score_list)
+        end_score = sum(end_score_list)
+        pred_s, pred_e, pred_score, para_id = DocumentReaderQA.decode(start_score, end_score,
+                                                                      top_n=top_n, max_len=max_len)
         return pred_s, pred_e, pred_score, para_id
 
     def forward(self, batch):

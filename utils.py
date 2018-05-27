@@ -51,7 +51,7 @@ def add_argument():
     parser.add_argument('-regular', type=float, default=0, dest="regular_weight", help='regular weight')
 
     # Predict Option
-    parser.add_argument('-model', type=str, dest="model_file", default=None)
+    parser.add_argument('-model', nargs='+', type=str, dest="model_file", default=None)
     parser.add_argument('-test', type=str, dest="test_file", default='data/sogou_shuffle_valid.json')
     parser.add_argument('-output', type=str, dest="out_file", default='output/result')
     parser.add_argument('-question', action='store_true', dest="question")
