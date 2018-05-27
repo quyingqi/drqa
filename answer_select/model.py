@@ -68,7 +68,7 @@ class DocumentReaderQA(nn.Module):
 
     def answer_init(self, opt):
         self.rankingLoss = nn.MarginRankingLoss(opt.loss_margin)
-        self.ones = Variable(torch.ones(opt.batch * opt.batch)).cuda(opt.device)
+        self.ones = Variable(torch.ones(opt.batch * 2)).cuda(opt.device)
 
     def reset_parameters(self):
         self.question_attention_p.data.normal_(0, 1)

@@ -219,13 +219,14 @@ class WebQACorpus(object):
         for index, i in enumerate(random_indexs):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             data_tmp = data[start:end]
-            _batch_size = len(data_tmp)
 
             batch_qid, batch_eid, batch_negs = zip(*data_tmp)
+            batch_qid = list(batch_qid) * 2
             batch_eid = list(batch_eid)
             for negs in batch_negs:
                 neg = random.choice(negs)
                 batch_eid.append(neg)
+            _batch_size = len(batch_qid)
 
             batch_data = self._question_evidence(batch_qid, batch_eid)
 

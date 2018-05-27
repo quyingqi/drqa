@@ -134,6 +134,11 @@ class DocumentReaderQA(nn.Module):
         e_input = batch.e_text
         e_word_emb = self.embedding.forward(e_input)
 
+#        q_word_emb = self.embedding.forward(batch.q_text)
+#        e_trans = torch.transpose(e_word_emb[:, :, :300], 1, 2)
+#        cross = torch.bmm(q_word_emb, e_trans)
+#        cross_feature = torch.max(cross, 1)[0].unsqueeze(-1)
+
         evidence_input_emb = [e_word_emb, batch.e_feature]
 
         if aligned_feature is not None:

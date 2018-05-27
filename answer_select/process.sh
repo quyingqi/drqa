@@ -3,7 +3,7 @@ python train.py \
 -dict ../data/vocab.pt \
 -epoch 10 \
 -batch 25 \
--device 3 \
+-device 2 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
@@ -14,7 +14,7 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name load_ranking_s_e_samequestion \
+-exp-name load_ranking_s_e_2 \
 -baidu-data ../drqa-classify/data/baidu_data.pt \
 -train-data ../drqa-classify/data/sogou_shuffle_train.pt \
 -valid-data ../drqa-classify/data/sogou_shuffle_valid.pt \
