@@ -74,10 +74,12 @@ class Evidence(object):
         qe_feature_c = torch.FloatTensor(evidence['qe_feature_c'])
         ee_fre_c = torch.FloatTensor(evidence['fre_token_c'])
         ee_com_c = torch.FloatTensor(evidence['f_eecomm_c'])
+        dis_edit_c = torch.FloatTensor(evidence['f_edit_dist_c'])
+        dis_jaccard_c = torch.FloatTensor(evidence['f_jaccard_c'])
 #        ee_ratio = torch.FloatTensor(evidence['fre_ratio'])
         e_feature_index = torch.stack([e_text_index, e_pos_index, e_ner_index], dim=1)
         e_feature_float = torch.stack([qe_feature, ee_fre, ee_com, dis_edit, dis_jaccard,
-                                       qe_feature_c, ee_fre_c, ee_com_c], dim=1)
+                                       qe_feature_c, ee_fre_c, ee_com_c, dis_edit_c, dis_jaccard_c], dim=1)
 
         return Evidence(e_key, e_text, e_feature_index, e_feature_float, starts, ends)
 

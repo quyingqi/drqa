@@ -20,20 +20,18 @@ def preprocess_data(args):
     word_dict, pos_dict, ner_dict = torch.load(args.dict_file)
 
     baidu_data = WebQACorpus(args.baidu_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
-#    train_data = WebQACorpus(args.train_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
-#    valid_data = WebQACorpus(args.valid_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
+    train_data = WebQACorpus(args.train_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
+    valid_data = WebQACorpus(args.valid_file, word_dict=word_dict, pos_dict=pos_dict, ner_dict=ner_dict)
 
     print("saving baidu_data ...")
     with open(args.baidu_data, 'wb') as output:
         torch.save(baidu_data, output)
-    '''
     print("saving train_data ...")
     with open(args.train_data, 'wb') as output:
         torch.save(train_data, output)
     print("saving valid_data ...")
     with open(args.valid_data, 'wb') as output:
         torch.save(valid_data, output)
-    '''
 
 if __name__ == "__main__":
     args = add_argument()

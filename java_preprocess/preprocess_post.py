@@ -31,6 +31,35 @@ def distance_features(question_token, evidence_tokens):
         edit_feature.append(edit)
     return jaccard_feature, edit_feature
 
+def distance_features_char(question_token, evidence_tokens):
+    question_char = []
+    for t in question_token:
+        question_char.extend(list(t))
+    evidence_char = []
+    for c in evidence_tokens:
+        evidence_char.extend(list(c))
+
+    jaccard_char = []
+    edit_char = []
+    l = len(question_char)
+
+    for evidence_tmp in get_evidence_tmp(l, evidence_char):
+        jaccard = cal_jaccard_similar_rate(evidence_tmp, question_char)
+        jaccard_char.append(jaccard)
+        edit = (levenshtein(evidence_tmp, question_char)) / l
+        edit_char.append(edit)
+
+    i = 0
+    jaccard_feature = []
+    edit_feature = []
+    for token in evidence_tokens:
+        size = len(token)
+        j = round(sum(jaccard_char[i:i+size]) / size, 2)
+        e = round(sum(edit_char[i:i+size]) / size, 2)
+        jaccard_feature.append(j)
+        edit_feature.append(e)
+        i += size
+    return jaccard_feature, edit_feature
 
 def levenshtein(first, second):
     if len(first) > len(second):
@@ -170,8 +199,11 @@ def feature_extractor(filepath, output):
  
             ## add_edit_distance
             feature_jasscard, feature_edit_distance = distance_features(question_tokens, evidence_tokens)
+            feature_jasscard_c, feature_edit_distance_c = distance_features_char(question_tokens, evidence_tokens)
             evidencedict['f_edit_dist'] = feature_edit_distance
             evidencedict['f_jaccard'] = feature_jasscard
+            evidencedict['f_edit_dist_c'] = feature_edit_distance_c
+            evidencedict['f_jaccard_c'] = feature_jasscard_c
 
         outputline = json.dumps(linedict)
         result.write(outputline + "\n")
