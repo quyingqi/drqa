@@ -1,0 +1,24 @@
+python train.py \
+-word-vectors ../data/penny.cbow.dim300.bin \
+-dict ../data/vocab.pt \
+-epoch 10 \
+-batch 50 \
+-device 3 \
+-pos-vec-size 5 \
+-ner-vec-size 5 \
+-hidden-size 128 \
+-optimizer Adamax \
+-lr 0.02 \
+-num-layers 3 \
+-dropout 0.2 \
+-channels 1 \
+-conv_kernel_1 1 \
+-conv_kernel_2 256 \
+-brnn \
+-rnn-type LSTM \
+-multi-layer last \
+-exp-name  1c_5window_dropout_nopretrian-2 \
+-baidu-data ../data/baidu_data-9.pt \
+-train-data ../data/sogou_shuffle_train-9.pt \
+-valid-data ../data/sogou_shuffle_valid-9.pt
+-resume_snapshot ../saved_checkpoint/feature_c-finetune/feature_c-finetune.best.query.pre.model
