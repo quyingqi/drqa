@@ -50,7 +50,7 @@ class DocumentReaderQA(nn.Module):
                                                       seq_size=self.question_encoder.output_size)
 
 #        self.soft_align_linear = nn.Linear(self.embedding.output_size, self.embedding.output_size)
-        self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
+#        self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
 #        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
         self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 8)
@@ -69,6 +69,22 @@ class DocumentReaderQA(nn.Module):
     def answer_init(self, opt):
         self.rankingLoss = nn.MarginRankingLoss(opt.loss_margin)
         self.ones = Variable(torch.ones(opt.batch * 2)).cuda(opt.device)
+
+        '''
+        in_channel = self.evidence_encoder.output_size+self.question_encoder.output_size
+        self.conv_start = nn.Sequential(
+                    self.dropout,
+                    nn.Conv1d(in_channel, opt.channels, 5, padding=2),
+                    nn.ReLU(True))
+        self.conv_end = nn.Sequential(
+                    self.dropout,
+                    nn.Conv1d(in_channel, opt.channels, 5, padding=2),
+                    nn.ReLU(True))
+#        self.pooling = nn.MaxPool2d((1, 128), stride=(1, 128), padding=0)
+        self.linear_start = nn.Linear(1+1, 1, bias=False)
+        self.linear_end = nn.Linear(1+1, 1, bias=False)
+        '''
+
 
     def reset_parameters(self):
         self.question_attention_p.data.normal_(0, 1)
@@ -181,26 +197,39 @@ class DocumentReaderQA(nn.Module):
         question_embedding = question_embedding.contiguous()
 
         # (batch, e_len, q_size) -> # (batch * e_len, q_size)
-        question_embedding = question_embedding.view(batch_size * e_max_len, q_emb_size)
+        question_embedding_view = question_embedding.view(batch_size * e_max_len, q_emb_size)
 
-        e_embedding = evidence_embedding.contiguous()
+        evidence_embedding = evidence_embedding.contiguous()
         # (batch, e_len, e_size) -> # (batch * e_len, e_size)
-        evidence_embedding = e_embedding.view(batch_size * e_max_len, e_emb_size)
+        evidence_embedding_view = evidence_embedding.view(batch_size * e_max_len, e_emb_size)
 
         # (batch * e_len, q_size) (batch * e_len, e_size) -> batch * e_len
-        start_score = self.start_matcher.forward(evidence_embedding, question_embedding).squeeze(-1)
-        end_score = self.end_matcher.forward(evidence_embedding, question_embedding).squeeze(-1)
+        start_score_bilinear = self.start_matcher.forward(evidence_embedding_view, question_embedding_view)
+        end_score_bilinear = self.end_matcher.forward(evidence_embedding_view, question_embedding_view)
+        # (batch, e_len)
+        start_score_bilinear = start_score_bilinear.squeeze(-1).view(batch_size, e_max_len)
+        end_score_bilinear = end_score_bilinear.squeeze(-1).view(batch_size, e_max_len)
 
-        # batch * e_len -> (batch, e_len)
-        start_score = start_score.view(batch_size, e_max_len) * e_mask
-        end_score = end_score.view(batch_size, e_max_len) * e_mask
+        start_score = start_score_bilinear * e_mask
+        end_score = end_score_bilinear * e_mask
 
         '''
-        # sim_dot
-        q_embedding = question_embedding.unsqueeze(1)
-        e_embedding = evidence_embedding.contiguous()
-        start_score = torch.bmm(q_embedding, e_embedding.transpose(1, 2)).squeeze(1) * e_mask
-        end_score = torch.bmm(q_embedding, e_embedding.transpose(1, 2)).squeeze(1) * e_mask
+        # (batch, e_len, q_size+e_size) -> (batch, q_size+e_size, e_len)
+        total_embed = torch.cat([question_embedding, evidence_embedding], dim=2).transpose(1,2)
+        # (batch, channel, e_len)
+        conv1_start = self.conv_start(total_embed)
+        conv1_end = self.conv_end(total_embed)
+        # (batch, e_len, channel)
+        start_score_conv = conv1_start.transpose(1,2)
+        end_score_conv = conv1_end.transpose(1,2)
+
+        # (batch, e_len, channel+1)
+        start_cat = torch.cat([start_score_bilinear.unsqueeze(-1), start_score_conv], dim=2)
+        end_cat = torch.cat([end_score_bilinear.unsqueeze(-1), end_score_conv], dim=2)
+
+        # (batch, e_len, channel+1) -> (batch, e_len)
+        start_score = self.linear_start(start_cat).squeeze(-1) * e_mask
+        end_score = self.linear_end(end_cat).squeeze(-1) * e_mask
         '''
 
         return start_score, end_score

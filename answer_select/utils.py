@@ -43,6 +43,7 @@ def add_argument():
     parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM', choices=["RNN", "GRU", "LSTM"])
     parser.add_argument('-multi-layer', type=str, dest='multi_layer_hidden', default='concatenate',
                         choices=["concatenate", "last"])
+    parser.add_argument('-channels', type=int, dest='channels', default=1)
 
     # Optimizer Option
     parser.add_argument('-word-normalize', action='store_true', dest="word_normalize")

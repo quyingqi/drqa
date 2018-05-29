@@ -2,8 +2,8 @@ python train.py \
 -word-vectors ../data/penny.cbow.dim300.bin \
 -dict ../data/vocab.pt \
 -epoch 10 \
--batch 25 \
--device 2 \
+-batch 32 \
+-device 1 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
@@ -14,8 +14,8 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name load_ranking_s_e_2 \
+-exp-name rnncnn-ranking \
 -baidu-data ../drqa-classify/data/baidu_data.pt \
 -train-data ../drqa-classify/data/sogou_shuffle_train.pt \
 -valid-data ../drqa-classify/data/sogou_shuffle_valid.pt \
--resume_snapshot ../saved_checkpoint/feature_c-finetune/feature_c-finetune.best.query.pre.model
+-resume_snapshot ../cnn/saved_checkpoint/1c_5window_dropout_nopretrian/1c_5window_dropout_nopretrian.best.query.pre.model

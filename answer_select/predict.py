@@ -54,6 +54,7 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
         answer_max = u''.join(question.evidence_raw_text[evidence_id][start_position:end_position + 1])
         answer_dict_old[q_key] = answer_max
 
+        '''
         # 对于所有的evidence, 找出答案后 按score排序
         answers = []
         for i in range(len(pred_score)):
@@ -83,12 +84,13 @@ def predict_answer(model, data_corpus, output_file=None, write_question=False, o
                 output.write("%s\t%s\t%s\n" % (q_key, q_text, answer))
             else:
                 output.write("%s\t%s\n" % (q_key, answer))
+        '''
 
     acc_s = correct_s / total
     acc_e = correct_e / total
     acc = correct / total
 
-    return answer_dict, answer_dict_old, acc_s, acc_e, acc
+    return answer_dict_old, acc_s, acc_e, acc
 
 
 def main():
