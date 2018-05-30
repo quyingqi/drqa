@@ -53,7 +53,7 @@ class DocumentReaderQA(nn.Module):
 #        self.soft_align_linear = nn.Linear(opt.word_vec_size, opt.word_vec_size)
 
 #        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 1 + opt.word_vec_size)
-        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 8)
+        self.evidence_encoder = get_rnn(opt, self.embedding.output_size + 10)
 
         self.start_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)
         self.end_matcher = BilinearMatcher(self.evidence_encoder.output_size, self.question_encoder.output_size)

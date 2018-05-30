@@ -75,7 +75,7 @@ def train_epoch(_model, _data):
     data_time = 0
     backward_time = 0
     back_time = time.time()
-    for batch in _data.next_batch():
+    for batch in _data.next_batch(ranking=True):
         batch_index += 1
         data_time = time.time() - back_time
         opt.zero_grad()

@@ -18,7 +18,7 @@ def add_argument():
                         default="data/sogou_shuffle_valid.pt")
     parser.add_argument('-test-file', type=str, dest="test_file", default=None)
     parser.add_argument('-topk', type=int, dest="topk", default=30000)
-    parser.add_argument('-dict', type=str, dest="dict_file", default='data/vocab.pt')
+    parser.add_argument('-dict', type=str, dest="dict_file", default='../data/vocab.pt')
 
     # Train Option
     parser.add_argument('-epoch', type=int, dest="epoch", default=50)

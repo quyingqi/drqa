@@ -74,10 +74,12 @@ class Evidence(object):
         qe_feature_c = torch.FloatTensor(evidence['qe_feature_c'])
         ee_fre_c = torch.FloatTensor(evidence['fre_token_c'])
         ee_com_c = torch.FloatTensor(evidence['f_eecomm_c'])
+        dis_edit_c = torch.FloatTensor(evidence['f_edit_dist_c'])
+        dis_jaccard_c = torch.FloatTensor(evidence['f_jaccard_c'])
 #        ee_ratio = torch.FloatTensor(evidence['fre_ratio'])
         e_feature_index = torch.stack([e_text_index, e_pos_index, e_ner_index], dim=1)
         e_feature_float = torch.stack([qe_feature, ee_fre, ee_com, dis_edit, dis_jaccard,
-                                       qe_feature_c, ee_fre_c, ee_com_c], dim=1)
+                                       qe_feature_c, ee_fre_c, ee_com_c, dis_edit_c, dis_jaccard_c], dim=1)
 
         return Evidence(e_key, e_text, e_feature_index, e_feature_float, starts, ends)
 
@@ -206,7 +208,7 @@ class WebQACorpus(object):
         return q_text, e_text, start_position, end_position, q_lens, e_lens, q_feature, \
                e_feature, q_key, e_key, q_real_text, e_real_text
 
-    def next_batch(self, shuffle=True):
+    def next_batch(self, ranking=False, shuffle=True):
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
 
         if not shuffle:
@@ -219,15 +221,16 @@ class WebQACorpus(object):
         for index, i in enumerate(random_indexs):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
             data_tmp = data[start:end]
-
             batch_qid, batch_eid, batch_negs = zip(*data_tmp)
-            batch_qid = list(batch_qid) * 2
-            batch_eid = list(batch_eid)
-            for negs in batch_negs:
-                neg = random.choice(negs)
-                batch_eid.append(neg)
-            _batch_size = len(batch_qid)
 
+            if ranking:
+                batch_qid = list(batch_qid) * 2
+                batch_eid = list(batch_eid)
+                for negs in batch_negs:
+                    neg = random.choice(negs)
+                    batch_eid.append(neg)
+
+            _batch_size = len(batch_qid)
             batch_data = self._question_evidence(batch_qid, batch_eid)
 
             q_text, e_text, start_position, end_position = batch_data[:4]
@@ -311,6 +314,7 @@ class WebQACorpus(object):
                     continue
                 for e in has_answer:
                     train_pair.append((question.q_key, e, no_answer))
+
 
         print('load data from %s, get %s qe pairs. ' %(filename, len(train_pair)))
 
