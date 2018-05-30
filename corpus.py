@@ -3,7 +3,7 @@
 # Created by Roger on 2017/10/24
 from __future__ import absolute_import
 import codecs
-import math
+import math, random
 try:
     import simplejson as json
 except:
@@ -169,7 +169,7 @@ class WebQACorpus(object):
                                                                        pos_dict=self.pos_dict)
         self.question_dict = question_dict # {q_key: [question, [eid]]}
         self.evidence_dict = evidence_dict # {eid: evidence}
-        self.data = train_pair  # (q_key, eid)
+        self.data = train_pair  # (q_key, eid, [eid_no_answer])
         self.batch_size = batch_size
         self.device = device
         self.volatile = volatile
@@ -208,11 +208,7 @@ class WebQACorpus(object):
         return q_text, e_text, start_position, end_position, q_lens, e_lens, q_feature, \
                e_feature, q_key, e_key, q_real_text, e_real_text
 
-    def _batchify(self, data):
-        question_ids, evidence_ids = zip(*data)
-        return self._question_evidence(question_ids, evidence_ids)
-
-    def next_batch(self, shuffle=True):
+    def next_batch(self, ranking=False, shuffle=True):
         num_batch = int(math.ceil(len(self.data) / float(self.batch_size)))
 
         if not shuffle:
@@ -224,8 +220,18 @@ class WebQACorpus(object):
 
         for index, i in enumerate(random_indexs):
             start, end = i * self.batch_size, (i + 1) * self.batch_size
-            _batch_size = len(data[start:end])
-            batch_data = self._batchify(data[start:end])
+            data_tmp = data[start:end]
+            batch_qid, batch_eid, batch_negs = zip(*data_tmp)
+
+            if ranking:
+                batch_qid = list(batch_qid) * 2
+                batch_eid = list(batch_eid)
+                for negs in batch_negs:
+                    neg = random.choice(negs)
+                    batch_eid.append(neg)
+
+            _batch_size = len(batch_qid)
+            batch_data = self._question_evidence(batch_qid, batch_eid)
 
             q_text, e_text, start_position, end_position = batch_data[:4]
             q_lens, e_lens, q_feature, e_feature = batch_data[4:8]
@@ -281,25 +287,34 @@ class WebQACorpus(object):
 
             for line in fin:
                 count += 1
-                all_evidence = list()
 
                 question, evidences = WebQACorpus.load_one_line_json(line, word_dict, pos_dict, ner_dict)
 
+                all_evidence = []
+                no_answer = []
+                has_answer = []
                 for e in evidences:
                     eid = "%s||%s" % (question.q_key, e.e_key)
                     evidence_dict[eid] = e
                     all_evidence.append(eid)
 
                     if e.starts[0] == -1 or e.ends[0] == -1:
-                        # Skip No Answer Evidence when Train
-                        continue
-
-                    train_pair.append((question.q_key, eid))
+                         no_answer.append(eid)
+                    else:
+                        has_answer.append(eid)
 
                 question_dict[question.q_key] = [question, all_evidence]
 
                 if count % 5000 == 0:
                     print(count)
+
+                if not no_answer:
+                    no_answer = [random.choice(list(evidence_dict.keys()))]
+                if not no_answer:
+                    continue
+                for e in has_answer:
+                    train_pair.append((question.q_key, e, no_answer))
+
 
         print('load data from %s, get %s qe pairs. ' %(filename, len(train_pair)))
 

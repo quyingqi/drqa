@@ -1,19 +1,20 @@
 python train.py \
 -word-vectors data/penny.cbow.dim300.bin \
--epoch 30 \
--batch 32 \
--device 1 \
+-epoch 10 \
+-batch 100 \
+-device 2 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
 -hidden-size 128 \
 -optimizer Adamax \
--lr 0.02 \
+-lr 0.0005 \
 -num-layers 3 \
+-dropout 0.1 \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name feature_dis \
--baidu-data data/baidu_data-8.pt \
--train-data data/sogou_shuffle_train-8.pt \
--valid-data data/sogou_shuffle_valid-8.pt
--resume_snapshot saved_checkpoint/celoss-score_sqrt/celoss-score_sqrt.best.loss.model \
+-exp-name feature_cc_lr_finetune \
+-baidu-data data/baidu_data-10.pt \
+-train-data data/sogou_shuffle_train-10.pt \
+-valid-data data/sogou_shuffle_valid-10.pt \
+-resume_snapshot saved_checkpoint/feature_cc_lr/feature_cc_lr.best.query.pre.model

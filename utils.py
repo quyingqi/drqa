@@ -34,13 +34,14 @@ def add_argument():
     parser.add_argument('-pos-vec-size', type=int, dest="pos_vec_size", default=5)
     parser.add_argument('-ner-vec-size', type=int, dest="ner_vec_size", default=5)
     parser.add_argument('-hidden-size', type=int, dest="hidden_size", default=128)
-    parser.add_argument('-num-layers', type=int, dest='num_layers', default=2)
+    parser.add_argument('-num-layers', type=int, dest='num_layers', default=3)
     parser.add_argument('-encoder-dropout', type=float, dest='encoder_dropout', default=0.3)
     parser.add_argument('-dropout', type=float, dest='dropout', default=0.3)
     parser.add_argument('-brnn', action='store_true', dest='brnn')
-    parser.add_argument('-word-vectors', type=str, dest="word_vectors", default='random')
+    parser.add_argument('-word-vectors', type=str, dest="word_vectors",
+                        default='data/penny.cbow.dim300.bin')
     parser.add_argument('-rnn-type', type=str, dest='rnn_type', default='LSTM', choices=["RNN", "GRU", "LSTM"])
-    parser.add_argument('-multi-layer', type=str, dest='multi_layer_hidden', default='concatenate',
+    parser.add_argument('-multi-layer', type=str, dest='multi_layer_hidden', default='last',
                         choices=["concatenate", "last"])
 
     # Optimizer Option

@@ -2,7 +2,7 @@ python train.py \
 -word-vectors ../data/penny.cbow.dim300.bin \
 -dict ../data/vocab.pt \
 -epoch 10 \
--batch 32 \
+-batch 40 \
 -device 1 \
 -pos-vec-size 5 \
 -ner-vec-size 5 \
@@ -14,8 +14,8 @@ python train.py \
 -brnn \
 -rnn-type LSTM \
 -multi-layer last \
--exp-name rnncnn-ranking \
--baidu-data ../drqa-classify/data/baidu_data.pt \
--train-data ../drqa-classify/data/sogou_shuffle_train.pt \
--valid-data ../drqa-classify/data/sogou_shuffle_valid.pt \
--resume_snapshot ../cnn/saved_checkpoint/1c_5window_dropout_nopretrian/1c_5window_dropout_nopretrian.best.query.pre.model
+-exp-name cross_4_ranking \
+-baidu-data ../data/baidu_data.pt \
+-train-data ../data/cross_train-4.pt \
+-valid-data ../data/cross_valid-4.pt \
+-resume_snapshot ../saved_checkpoint/cross_4/cross_4.best.query.pre.model

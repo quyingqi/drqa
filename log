@@ -203,6 +203,7 @@ saving baidu_data ...
 saving train_data ...
 saving valid_data ...
 
+加入2个新特征：jaccard-char, edit-dis-char
 qyq@oncedi:~/drqa$ python preprocess.py -baidu-file java_preprocess/baidu_data-dis-cc.json -train-file java_preprocess/sogou_shuffle_train-dis-cc.json -valid-file java_preprocess/sogou_shuffle_valid-dis-cc.json -baidu-data data/baidu_data-10.pt -train-data data/sogou_shuffle_train-10.pt -valid-data data/sogou_shuffle_valid-10.pt
 data/baidu_data-10.pt
 data/sogou_shuffle_train-10.pt
@@ -223,5 +224,82 @@ load data from java_preprocess/sogou_shuffle_train-dis-cc.json, get 91937 qe pai
 5000
 load data from java_preprocess/sogou_shuffle_valid-dis-cc.json, get 23053 qe pairs. 
 saving baidu_data ...
+saving train_data ...
+saving valid_data ...
+
+合并corpus.py和answer_select/corpus.py，训ranking模型时next_batch为True
+qyq@oncedi:~/drqa$ python preprocess.py -baidu-file java_preprocess/baidu_data-dis-cc.json -train-file java_preprocess/sogou_shuffle_train-dis-cc.json -valid-file java_preprocess/sogou_shuffle_valid-dis-cc.json -baidu-data data/baidu_data.pt -train-data data/sogou_shuffle_train.pt -valid-data data/sogou_shuffle_valid.pt
+data/baidu_data.pt
+data/sogou_shuffle_train.pt
+data/sogou_shuffle_valid.pt
+5000
+10000
+15000
+20000
+25000
+30000
+35000
+load data from java_preprocess/baidu_data-dis-cc.json, get 140783 qe pairs. 
+5000
+10000
+15000
+20000
+load data from java_preprocess/sogou_shuffle_train-dis-cc.json, get 91937 qe pairs. 
+5000
+load data from java_preprocess/sogou_shuffle_valid-dis-cc.json, get 23053 qe pairs. 
+saving baidu_data ...
+saving train_data ...
+saving valid_data ...
+
+qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/cross_train-1.json -valid-file java_preprocess/cross_valid-1.json -train-data data/cross_train-1.pt -valid-data data/cross_valid-1.pt
+data/baidu_data.pt
+data/cross_train-1.pt
+data/cross_valid-1.pt
+5000
+10000
+15000
+20000
+load data from java_preprocess/cross_train-1.json, get 92043 qe pairs. 
+5000
+load data from java_preprocess/cross_valid-1.json, get 22947 qe pairs. 
+saving train_data ...
+saving valid_data ...
+qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/cross_train-2.json -valid-file java_preprocess/cross_valid-2.json -train-data data/cross_train-2.pt -valid-data data/cross_valid-2.pt   
+data/baidu_data.pt
+data/cross_train-2.pt
+data/cross_valid-2.pt
+5000
+10000
+15000
+20000
+load data from java_preprocess/cross_train-2.json, get 92047 qe pairs. 
+5000
+load data from java_preprocess/cross_valid-2.json, get 22943 qe pairs. 
+saving train_data ...
+saving valid_data ...
+qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/cross_train-3.json -valid-file java_preprocess/cross_valid-3.json -train-data data/cross_train-3.pt -valid-data data/cross_valid-3.pt   
+data/baidu_data.pt
+data/cross_train-3.pt
+data/cross_valid-3.pt
+5000
+10000
+15000
+20000
+load data from java_preprocess/cross_train-3.json, get 91996 qe pairs. 
+5000
+load data from java_preprocess/cross_valid-3.json, get 22994 qe pairs. 
+saving train_data ...
+saving valid_data ...
+qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/cross_train-4.json -valid-file java_preprocess/cross_valid-4.json -train-data data/cross_train-4.pt -valid-data data/cross_valid-4.pt   
+data/baidu_data.pt
+data/cross_train-4.pt
+data/cross_valid-4.pt
+5000
+10000
+15000
+20000
+load data from java_preprocess/cross_train-4.json, get 91937 qe pairs. 
+5000
+load data from java_preprocess/cross_valid-4.json, get 23053 qe pairs. 
 saving train_data ...
 saving valid_data ...
