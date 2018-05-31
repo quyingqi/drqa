@@ -303,3 +303,16 @@ load data from java_preprocess/cross_train-4.json, get 91937 qe pairs.
 load data from java_preprocess/cross_valid-4.json, get 23053 qe pairs. 
 saving train_data ...
 saving valid_data ...
+
+qyq@oncedi:~/drqa$ python preprocess.py -train-file java_preprocess/cross_train-all.json -train-data data/cross_train-all.pt
+data/baidu_data.pt
+data/cross_train-all.pt
+data/sogou_shuffle_valid.pt
+5000
+10000
+15000
+20000
+25000
+30000
+load data from java_preprocess/cross_train-all.json, get 114990 qe pairs. 
+saving train_data ...
